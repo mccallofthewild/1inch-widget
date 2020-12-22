@@ -1,0 +1,552 @@
+{
+	"basePath": "/",
+	"info": { "title": "1inch API", "version": "2.0" },
+	"paths": {
+		"/v2.0/approve/calldata": {
+			"get": {
+				"operationId": "getCallData",
+				"tags": ["Approve"],
+				"description": "Generated approve calldata",
+				"parameters": [
+					{
+						"name": "amount",
+						"in": "query",
+						"type": "integer",
+						"required": false
+					},
+					{
+						"name": "infinity",
+						"in": "query",
+						"type": "boolean",
+						"required": false
+					},
+					{
+						"name": "tokenAddress",
+						"in": "query",
+						"type": "string",
+						"required": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": { "$ref": "#/definitions/ApproveCallData" }
+					},
+					"500": { "description": "Internal Server Error" }
+				},
+				"produces": ["application/json"],
+				"consumes": ["application/json"]
+			}
+		},
+		"/v2.0/approve/spender": {
+			"get": {
+				"operationId": "getSpenderAddress",
+				"tags": ["Approve"],
+				"description": "Address of spender",
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": { "$ref": "#/definitions/SpenderAddress" }
+					},
+					"500": { "description": "Internal Server Error" }
+				},
+				"produces": ["application/json"],
+				"consumes": ["application/json"]
+			}
+		},
+		"/v2.0/healthcheck": {
+			"get": {
+				"operationId": "isLife",
+				"tags": ["Healthcheck"],
+				"responses": {
+					"200": { "description": "Success" },
+					"500": { "description": "Internal Server Error" }
+				},
+				"produces": ["application/json"],
+				"consumes": ["application/json"]
+			}
+		},
+		"/v2.0/quote": {
+			"get": {
+				"operationId": "getQuote",
+				"tags": ["Quote/Swap"],
+				"description": "Quote",
+				"parameters": [
+					{
+						"name": "fromTokenAddress",
+						"in": "query",
+						"type": "string",
+						"required": true
+					},
+					{
+						"name": "toTokenAddress",
+						"in": "query",
+						"type": "string",
+						"required": true
+					},
+					{
+						"name": "amount",
+						"in": "query",
+						"type": "integer",
+						"required": true
+					},
+					{
+						"name": "fee",
+						"in": "query",
+						"type": "number",
+						"description": "min: 0; max: 3; default: 0;  !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 0,
+						"maximum": 3
+					},
+					{
+						"name": "protocols",
+						"in": "query",
+						"type": "string",
+						"description": "default: all",
+						"required": false
+					},
+					{
+						"name": "gasPrice",
+						"in": "query",
+						"type": "string",
+						"description": "default: fast from network",
+						"required": false
+					},
+					{
+						"name": "complexityLevel",
+						"in": "query",
+						"type": "string",
+						"description": "min: 0; max: 3; default: 2; !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 0,
+						"maximum": 3
+					},
+					{
+						"name": "connectorTokens",
+						"in": "query",
+						"type": "string",
+						"description": "max: 5; example: 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE,0x6b175474e89094c44da98b954eedeac495271d0f;  !should be the same for quote and swap!",
+						"required": false,
+						"allowEmptyValue": true
+					},
+					{
+						"name": "gasLimit",
+						"in": "query",
+						"type": "integer",
+						"description": "max amount of gas of path costs. default: 11500000; max: 11500000; !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 100000,
+						"maximum": 11500000
+					},
+					{
+						"name": "parts",
+						"in": "query",
+						"type": "integer",
+						"description": "split parts. default: 20; max: 100;  !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 0,
+						"maximum": 100
+					},
+					{
+						"name": "virtualParts",
+						"in": "query",
+						"type": "integer",
+						"description": "split parts. default: 20; max: 100;  should be >= parts !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 0,
+						"maximum": 100
+					},
+					{
+						"name": "mainRouteParts",
+						"in": "query",
+						"type": "integer",
+						"description": "default: 10; max: 50;  !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 1,
+						"maximum": 50
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": { "$ref": "#/definitions/Quote" }
+					},
+					"500": { "description": "Internal Server Error" }
+				},
+				"produces": ["application/json"],
+				"consumes": ["application/json"]
+			}
+		},
+		"/v2.0/swap": {
+			"get": {
+				"operationId": "swap",
+				"tags": ["Quote/Swap"],
+				"description": "Swap",
+				"parameters": [
+					{
+						"name": "fromTokenAddress",
+						"in": "query",
+						"type": "string",
+						"required": true
+					},
+					{
+						"name": "toTokenAddress",
+						"in": "query",
+						"type": "string",
+						"required": true
+					},
+					{
+						"name": "amount",
+						"in": "query",
+						"type": "integer",
+						"required": true
+					},
+					{
+						"name": "fromAddress",
+						"in": "query",
+						"type": "string",
+						"description": "user's wallet address",
+						"required": true
+					},
+					{
+						"name": "slippage",
+						"in": "query",
+						"type": "number",
+						"description": "min: 0; max: 50;",
+						"required": true,
+						"minimum": 0,
+						"maximum": 50
+					},
+					{
+						"name": "protocols",
+						"in": "query",
+						"type": "string",
+						"description": "default: all",
+						"required": false
+					},
+					{
+						"name": "destReceiver",
+						"in": "query",
+						"type": "string",
+						"description": "Receiver of destination currency. default: from address",
+						"required": false
+					},
+					{
+						"name": "referrerAddress",
+						"in": "query",
+						"type": "string",
+						"required": false
+					},
+					{
+						"name": "fee",
+						"in": "query",
+						"type": "number",
+						"description": "min: 0; max: 3; default: 0;  !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 0,
+						"maximum": 3
+					},
+					{
+						"name": "gasPrice",
+						"in": "query",
+						"type": "string",
+						"description": "default: fast from network",
+						"required": false
+					},
+					{
+						"name": "burnChi",
+						"in": "query",
+						"type": "boolean",
+						"description": "default: false; Suggest to check user's balance and allowance before set this flag; CHI should be approved to spender address",
+						"required": false
+					},
+					{
+						"name": "complexityLevel",
+						"in": "query",
+						"type": "string",
+						"description": "min: 0; max: 3; default: 2; !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 0,
+						"maximum": 3
+					},
+					{
+						"name": "connectorTokens",
+						"in": "query",
+						"type": "string",
+						"description": "max: 5; example: 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE,0x6b175474e89094c44da98b954eedeac495271d0f;  !should be the same for quote and swap!",
+						"required": false,
+						"allowEmptyValue": true
+					},
+					{
+						"name": "allowPartialFill",
+						"in": "query",
+						"type": "boolean",
+						"required": false
+					},
+					{
+						"name": "disableEstimate",
+						"in": "query",
+						"type": "boolean",
+						"description": "default: false",
+						"required": false
+					},
+					{
+						"name": "gasLimit",
+						"in": "query",
+						"type": "integer",
+						"description": "max amount of gas of path costs. default: 11500000; max: 11500000; !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 100000,
+						"maximum": 11500000
+					},
+					{
+						"name": "parts",
+						"in": "query",
+						"type": "integer",
+						"description": "split parts. default: 20; max: 100;  !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 0,
+						"maximum": 100
+					},
+					{
+						"name": "virtualParts",
+						"in": "query",
+						"type": "integer",
+						"description": "split parts. default: 20; max: 100;  should be >= parts !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 0,
+						"maximum": 100
+					},
+					{
+						"name": "mainRouteParts",
+						"in": "query",
+						"type": "integer",
+						"description": "default: 10; max: 50;  !should be the same for quote and swap!",
+						"required": false,
+						"minimum": 1,
+						"maximum": 50
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": { "$ref": "#/definitions/Swap" }
+					},
+					"500": { "description": "Internal Server Error" }
+				},
+				"produces": ["application/json"],
+				"consumes": ["application/json"]
+			}
+		},
+		"/v2.0/protocols": {
+			"get": {
+				"operationId": "getProtocols",
+				"tags": ["Protocols"],
+				"description": "All supported protocols",
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": { "$ref": "#/definitions/Protocols" }
+					},
+					"500": { "description": "Internal Server Error" }
+				},
+				"produces": ["application/json"],
+				"consumes": ["application/json"]
+			}
+		},
+		"/v2.0/tokens": {
+			"get": {
+				"operationId": "getTokens",
+				"tags": ["Tokens"],
+				"description": "All supported tokens (can also use your own)",
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": { "$ref": "#/definitions/Tokens" }
+					},
+					"500": { "description": "Internal Server Error" }
+				},
+				"produces": ["application/json"],
+				"consumes": ["application/json"]
+			}
+		}
+	},
+	"tags": [
+		{ "name": "Approve" },
+		{ "name": "Healthcheck" },
+		{ "name": "Quote/Swap" },
+		{ "name": "Protocols" },
+		{ "name": "Tokens" }
+	],
+	"schemes": ["https", "http"],
+	"produces": ["application/json"],
+	"consumes": ["application/json"],
+	"definitions": {
+		"ApproveCallData": {
+			"type": "object",
+			"properties": {
+				"to": {
+					"type": "string",
+					"description": "Address of the token to approve",
+					"example": ["0x6b175474e89094c44da98b954eedeac495271d0f"]
+				},
+				"value": {
+					"type": "string",
+					"description": "ETH value in wei (for approve is 0)"
+				},
+				"gasPrice": {
+					"type": "string",
+					"description": "Network fast gas price"
+				},
+				"data": { "type": "string", "description": "CallData to sign" }
+			},
+			"required": ["to", "value", "gasPrice", "data"],
+			"description": "Approve CallData response"
+		},
+		"SpenderAddress": {
+			"type": "object",
+			"properties": {
+				"address": {
+					"type": "string",
+					"description": "We need to approve your token to this address"
+				}
+			},
+			"required": ["address"],
+			"description": "Spender address"
+		},
+		"Protocols": {
+			"type": "object",
+			"properties": {
+				"protocols": {
+					"type": "array",
+					"description": "Supported protocols to pass to protocols",
+					"items": { "type": "string" }
+				}
+			},
+			"required": ["protocols"],
+			"description": "Supported Protocols"
+		},
+		"Tokens": {
+			"type": "object",
+			"properties": {
+				"tokens": {
+					"type": "object",
+					"additionalProperties": {
+						"description": "Supported tokens",
+						"$ref": "#/definitions/Token"
+					}
+				}
+			},
+			"required": ["tokens"],
+			"description": "Supported tokens (you can also use not supported)"
+		},
+		"Token": {
+			"type": "object",
+			"properties": {
+				"symbol": { "type": "string" },
+				"name": { "type": "string" },
+				"address": { "type": "string" },
+				"decimals": { "type": "number" },
+				"logoURI": { "type": "string" }
+			},
+			"required": ["symbol", "name", "address", "decimals", "logoURI"],
+			"description": "Token"
+		},
+		"Quote": {
+			"type": "object",
+			"properties": {
+				"fromToken": {
+					"description": "From token info",
+					"$ref": "#/definitions/Token"
+				},
+				"toToken": {
+					"description": "To token info",
+					"$ref": "#/definitions/Token"
+				},
+				"toTokenAmount": { "type": "string", "description": "To token amount" },
+				"fromTokenAmount": {
+					"type": "string",
+					"description": "From token amount"
+				},
+				"protocols": {
+					"type": "array",
+					"description": "From token amount",
+					"items": { "$ref": "#/definitions/SelectedProtocol" }
+				},
+				"estimatedGas": { "type": "integer", "description": "Estimated Gas" }
+			},
+			"required": [
+				"fromToken",
+				"toToken",
+				"toTokenAmount",
+				"fromTokenAmount",
+				"protocols",
+				"estimatedGas"
+			],
+			"description": "Quote Response"
+		},
+		"Swap": {
+			"type": "object",
+			"properties": {
+				"fromToken": {
+					"description": "From token info",
+					"$ref": "#/definitions/Token"
+				},
+				"toToken": {
+					"description": "To token info",
+					"$ref": "#/definitions/Token"
+				},
+				"toTokenAmount": { "type": "string", "description": "To token amount" },
+				"fromTokenAmount": {
+					"type": "string",
+					"description": "From token amount"
+				},
+				"protocols": {
+					"type": "array",
+					"description": "From token amount",
+					"items": { "$ref": "#/definitions/SelectedProtocol" }
+				},
+				"tx": {
+					"description": "Ethereum transaction",
+					"$ref": "#/definitions/Tx"
+				}
+			},
+			"required": [
+				"fromToken",
+				"toToken",
+				"toTokenAmount",
+				"fromTokenAmount",
+				"protocols",
+				"tx"
+			],
+			"description": "Swap Response"
+		},
+		"Tx": {
+			"type": "object",
+			"properties": {
+				"from": { "type": "string" },
+				"to": { "type": "string" },
+				"data": { "type": "string" },
+				"value": { "type": "string" },
+				"gasPrice": { "type": "string" },
+				"gas": { "type": "number" }
+			},
+			"required": ["from", "to", "data", "value", "gasPrice", "gas"],
+			"description": "Ethereum transaction"
+		},
+		"SelectedProtocol": {
+			"type": "object",
+			"properties": {
+				"name": { "type": "string" },
+				"part": { "type": "number" },
+				"fromTokenAddress": { "type": "string" },
+				"toTokenAddress": { "type": "string" }
+			},
+			"required": ["name", "part", "fromTokenAddress", "toTokenAddress"],
+			"description": "Selected Protocol Info"
+		}
+	},
+	"swagger": "2.0",
+	"host": "api.1inch.exchange"
+}

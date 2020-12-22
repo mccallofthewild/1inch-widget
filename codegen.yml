@@ -1,0 +1,15 @@
+overwrite: true
+# schema: 'https://api.thegraph.com/subgraphs/name/krboktv/mooniswap'
+schema: 'https://api.thegraph.com/subgraphs/name/1inch-exchange/one-inch-v2'
+documents: null
+generates:
+  generated/OneInchGraph.ts:
+    plugins:
+      - add:
+          content:
+            - 'export namespace OneInchGraph {'
+      - add:
+          placement: 'append'
+          content: '}'
+      - 'typescript'
+      - 'typescript-resolvers'
