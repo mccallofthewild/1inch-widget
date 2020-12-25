@@ -24,7 +24,7 @@ function createInvocablePromise<
 export const gql = (...templateLiteral: Parameters<typeof String.raw>) => {
 	const query = String.raw(...templateLiteral);
 	let variables;
-	const request = (): Promise<GqlTypes.Query> =>
+	const request = (): Promise<OneInchGraph.Query> =>
 		fetch(
 			'https://api.thegraph.com/subgraphs/name/1inch-exchange/one-inch-v2',
 			{
@@ -61,42 +61,3 @@ export const gql = (...templateLiteral: Parameters<typeof String.raw>) => {
 		}
 	);
 };
-(async () => {
-	return;
-	const thing = await gql`
-		{
-			pairs(first: 1, skip: 10) {
-				token0 {
-					name
-				}
-				token1 {
-					name
-				}
-				token0Price
-				token1Price
-			}
-		}
-	`;
-	console.log(thing);
-
-	console.log('-----');
-
-	const thing2 = await gql`
-		query PairRequest($first: Int!) {
-			pairs(first: $first, skip: 10) {
-				token0 {
-					name
-				}
-				token1 {
-					name
-				}
-				token0Price
-				token1Price
-			}
-		}
-	`({
-		first: 2,
-	});
-
-	console.log(thing2);
-})();
