@@ -1,0 +1,175 @@
+.swap_container {
+	margin: 30px;
+	box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+	border-radius: 20px;
+	padding: 20px;
+	background: white;
+}
+.swap_header {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+.swap_header_item {
+	font-weight: bolder;
+	opacity: 0.3;
+	/* text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.15); */
+}
+
+.swap_header_item_active {
+	opacity: 1;
+}
+
+.swap_form_container {
+	margin-top: 30px;
+}
+
+.swap_form_token_container {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+}
+.swap_form_token_label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	align-self: flex-start;
+}
+
+.swap_form_token_select_container {
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+.swap_form_token_select {
+	width: calc((100% - 60%) / 2);
+	cursor: pointer;
+}
+
+.swap_form_token_select_icon {
+	width: 100%;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	/* width: 15%; */
+}
+
+.swap_form_token_select_icon_image {
+	width: 34px;
+	/* height: 30px; */
+	/* width: 30px; */
+}
+
+.swap_form_token_select_icon_chevron_down {
+	font-size: 10px;
+	/* width: 60%; */
+	padding-left: 3px;
+	padding-right: 7px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.swap_form_token_amount_input_container {
+	width: 60%;
+}
+
+.swap_form_token_amount_input {
+	composes: global_input from global;
+}
+
+.swap_form_token_amount_in_fiat_container {
+	width: calc((100% - 60%) / 2);
+	display: flex;
+	justify-content: flex-end;
+	align-items: flex-end;
+}
+
+.swap_form_token_amount_in_fiat {
+	text-align: right;
+	height: 100%;
+	width: 100%;
+	font-family: monospace;
+	display: block;
+	white-space: nowrap;
+	align-self: flex-end;
+	justify-self: flex-end;
+	font-size: 14px;
+	color: rgba(0, 0, 0, 0.3);
+	/* padding-bottom: 15px; */
+	padding-left: 10px;
+}
+
+.swap_form_token_divider_container {
+	display: flex;
+	align-items: center;
+	margin-top: 30px;
+	margin-bottom: 30px;
+}
+
+.swap_form_token_divider {
+	height: 0.5px;
+	background: rgba(0, 0, 0, 0.06);
+	width: 85%;
+}
+
+.swap_form_token_divider_action_icon {
+	margin-left: 5%;
+	width: 30px;
+	height: 30px;
+	cursor: pointer;
+	transition: all 250ms ease;
+}
+.swap_form_token_divider_action_icon:hover {
+	opacity: 0.5;
+}
+.swap_form_token_divider_action_icon > svg {
+	width: 100%;
+	height: 100%;
+}
+
+.swap_form_token_dex_info_container {
+	display: flex;
+	align-items: space-between;
+	width: 100%;
+	margin-top: 20px;
+	font-size: 0.7rem;
+}
+
+.swap_form_token_dex_info_title {
+	font-weight: bold;
+	width: 50%;
+}
+
+.swap_form_token_dex_info_toggle {
+	cursor: pointer;
+	width: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.swap_form_token_dex_info_toggle_action_text {
+	color: rgba(0, 0, 0, 0.3);
+}
+
+.swap_form_submit_button {
+	width: 100%;
+	border-radius: 10px;
+	background: black;
+	border: none;
+	color: white;
+	/* font-weight: bold; */
+	padding-top: 15px;
+	padding-bottom: 15px;
+	margin-top: 20px;
+}
+
+.swap_form_meta_container {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.6rem;
+	color: rgba(0, 0, 0, 0.5);
+	margin-top: 20px;
+}

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "lib",
     "downlevelIteration": true,
     "target": "es5",
     "lib": [

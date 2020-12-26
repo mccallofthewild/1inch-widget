@@ -14,6 +14,7 @@ import { useTokenBalances } from '../hooks/useTokenBalances';
 import { useFromTokens } from '../hooks/useFromTokens';
 import { useTokenTxsFromAccount } from '../hooks/useTokenTxsFromAccount';
 import { Button, Card, Col, Input, Row, Spacer, Text } from '@geist-ui/react';
+import { CoinPriceUSD } from '../components/CoinPriceUSD';
 
 const widget = () => {
 	const router = useRouter();
@@ -23,10 +24,7 @@ const widget = () => {
 	const tokenTxsFromAccount = useTokenTxsFromAccount(web3, provider);
 	const [fromToken, setFromToken] = useState<OneInchGraph.Token | null>(null);
 	const [toToken, setToToken] = useState<OneInchGraph.Token | undefined>();
-	const [amountFromToken, setAmountFromToken] = useDebounce<string | number>(
-		1,
-		1000
-	);
+	const [amountToSend, setAmountToSend] = useDebounce<string | number>(1, 1000);
 	const [quote, setQuote] = useState<OneInchApi.Quote>();
 	const [swapStatus, setSwapStatus] = useState<
 		'DORMANT' | 'SUCCESS' | 'PENDING' | 'FAILED'
@@ -54,11 +52,9 @@ const widget = () => {
 		const balance = fromTokenBalances[fromToken?.id];
 		if (![fromToken, web3.account, balance, amountInputRef].every((el) => !!el))
 			return;
-		const val = parseUnits(amountFromToken + '', fromToken.decimals).gt(balance)
-			? formatUnits(balance, BigNumber.from(fromToken.decimals))
-			: amountFromToken + '';
+		const val = formatUnits(balance, BigNumber.from(fromToken.decimals));
 		amountInputRef.value = val;
-		setAmountFromToken(val);
+		setAmountToSend(val);
 	}, [fromToken]);
 	useEffect(() => {
 		const balance = fromTokenBalances[fromToken?.id];
@@ -71,7 +67,7 @@ const widget = () => {
 				amount: parseInt(
 					ethers.utils
 						.parseUnits(
-							amountFromToken.toString(),
+							amountToSend.toString(),
 							ethers.BigNumber.from(fromToken.decimals)
 						)
 						.toString()
@@ -80,11 +76,11 @@ const widget = () => {
 			.then((quote) => {
 				setQuote(quote);
 			});
-	}, [fromToken, toToken, web3.account, amountFromToken, fromTokenBalances]);
+	}, [fromToken, toToken, web3.account, amountToSend, fromTokenBalances]);
 	const swapTokens = async () => {
 		const parsedAmountFromToken = ethers.utils
 			.parseUnits(
-				amountFromToken.toString(),
+				amountToSend.toString(),
 				ethers.BigNumber.from(fromToken.decimals)
 			)
 			.toString();
@@ -137,98 +133,119 @@ const widget = () => {
 			});
 	};
 	return (
-		<Card shadow>
-			<div>
-				{' '}
-				{web3.account ? null : (
-					<Button onClick={() => activateWeb3()}>Connect Wallet</Button>
-				)}
-			</div>
-			<SelectToken
-				label='From Token'
-				onInput={(t) => setFromToken(t)}
-				tokens={fromTokens}
-			></SelectToken>
-			{fromToken ? (
-				<Text small b>
-					Balance of{' '}
-					{fromTokenBalances[fromToken.id]
-						? formatUnits(fromTokenBalances[fromToken.id], fromToken.decimals)
-						: null}{' '}
-					{fromToken.symbol}
-				</Text>
-			) : null}
-			<Spacer></Spacer>
-			<SelectToken
-				label='To Token'
-				onInput={(t) => {
-					setToToken(t);
-				}}
-				tokens={allTokens.filter((t) => t.id != fromToken?.id)}
-			></SelectToken>
-			<Spacer></Spacer>
-			{fromToken ? (
-				<>
-					<Text h5>Amount to send</Text>
-					<Input
-						type='number'
-						name='amount'
-						min='0'
-						labelRight={fromToken.symbol}
-						ref={(ref) => {
-							amountInputRef = ref;
-						}}
-						max={
-							fromTokenBalances[fromToken.id]
-								? parseFloat(
-										formatUnits(
-											fromTokenBalances[fromToken.id],
-											fromToken.decimals
-										)
+		<div style={{ margin: 30 }}>
+			<Card shadow>
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+					}}
+				>
+					<div>
+						{' '}
+						{web3.account ? null : (
+							<Button onClick={() => activateWeb3()}>Connect Wallet</Button>
+						)}
+					</div>
+					{fromToken ? (
+						<>
+							<Text h5>Amount to send</Text>
+							<Input
+								type='number'
+								name='amount'
+								min='0'
+								labelRight={fromToken.symbol}
+								ref={(ref) => {
+									amountInputRef = ref;
+								}}
+								max={
+									fromTokenBalances[fromToken.id]
+										? parseFloat(
+												formatUnits(
+													fromTokenBalances[fromToken.id],
+													fromToken.decimals
+												)
+										  )
+										: Infinity
+								}
+								defaultValue={amountToSend}
+								onChange={(e) =>
+									setAmountToSend(parseFloat(e.currentTarget.value))
+								}
+							/>
+						</>
+					) : null}
+					<Spacer></Spacer>
+					<SelectToken
+						label='From Token'
+						onInput={(t) => setFromToken(t)}
+						tokens={fromTokens}
+					></SelectToken>
+					{fromToken ? (
+						<Text small b>
+							Balance of{' '}
+							{fromTokenBalances[fromToken.id]
+								? formatUnits(
+										fromTokenBalances[fromToken.id],
+										fromToken.decimals
 								  )
-								: Infinity
+								: null}{' '}
+							{fromToken.symbol}
+						</Text>
+					) : null}
+					<Spacer></Spacer>
+					<SelectToken
+						label='To Token'
+						onInput={(t) => {
+							setToToken(t);
+						}}
+						tokens={allTokens.filter((t) => t.id != fromToken?.id)}
+					></SelectToken>
+					<Spacer></Spacer>
+
+					<CoinPriceUSD
+						stableCoinAddress={allTokens.find((t) => t.symbol == 'DAI')?.id}
+						tokenAddress={fromToken?.id}
+						tokenQuantity={amountToSend + ''}
+					></CoinPriceUSD>
+					{quote ? (
+						<p>
+							{ethers.utils
+								.formatUnits(
+									ethers.BigNumber.from(quote.fromTokenAmount),
+									ethers.BigNumber.from(quote.fromToken.decimals)
+								)
+								.toString()}{' '}
+							{quote.fromToken.symbol} for{' '}
+							{ethers.utils
+								.formatUnits(
+									ethers.BigNumber.from(quote.toTokenAmount),
+									ethers.BigNumber.from(quote.toToken.decimals)
+								)
+								.toString()}{' '}
+							{quote.toToken.symbol}
+						</p>
+					) : null}
+
+					<button
+						loading={swapStatus == 'PENDING'}
+						type={
+							swapStatus == 'SUCCESS'
+								? 'success'
+								: swapStatus == 'FAILED'
+								? 'warning'
+								: 'secondary'
 						}
-						defaultValue={amountFromToken}
-						onInput={(e) =>
-							setAmountFromToken(parseFloat(e.currentTarget.value))
-						}
-					/>
-				</>
-			) : null}
-			{quote ? (
-				<p>
-					{ethers.utils
-						.formatUnits(
-							ethers.BigNumber.from(quote.fromTokenAmount),
-							ethers.BigNumber.from(quote.fromToken.decimals)
-						)
-						.toString()}{' '}
-					{quote.fromToken.symbol} for{' '}
-					{ethers.utils
-						.formatUnits(
-							ethers.BigNumber.from(quote.toTokenAmount),
-							ethers.BigNumber.from(quote.toToken.decimals)
-						)
-						.toString()}{' '}
-					{quote.toToken.symbol}
-				</p>
-			) : null}
-			<Button
-				loading={swapStatus == 'PENDING'}
-				type={
-					swapStatus == 'SUCCESS'
-						? 'success'
-						: swapStatus == 'FAILED'
-						? 'warning'
-						: 'secondary'
-				}
-				shadow
-				onClick={() => swapTokens()}
-				size={'large'}
-			>
-				Swap!
-			</Button>
-		</Card>
+						shadow
+						onClick={() => swapTokens()}
+						size={'large'}
+					>
+						Swap!
+					</button>
+				</div>
+			</Card>
+		</div>
 	);
 };
 export default widget;

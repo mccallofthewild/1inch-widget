@@ -1,0 +1,50 @@
+.token_search_container {
+	composes: card from global;
+	position: relative;
+}
+
+.token_search_bar_container {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+/* .token_search_bar_icon {
+	width: 20%;
+} */
+.token_search_bar_icon > svg {
+	width: 100%;
+}
+
+.token_search_bar_input {
+	width: 100%;
+	composes: global_input from global;
+}
+
+.token_search_results_container {
+	height: 380px;
+	overflow: scroll;
+	position: relative;
+}
+.token_search_results_container_overlay {
+	position: absolute;
+	bottom: 10px;
+	left: 0;
+	right: 0;
+	height: 25%;
+	pointer-events: none;
+	background: linear-gradient(to top, white, transparent);
+}
+
+.token_search_results_item {
+	font-size: 1rem;
+	padding: 10px 20px;
+	border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
+	cursor: pointer;
+	transition: all 200ms ease;
+}
+
+.token_search_results_item:hover {
+	transform: scale(1.02);
+	box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1);
+}
