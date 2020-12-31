@@ -74,6 +74,7 @@ export default function Home({ allPostsData }) {
 								marginTop: 54,
 								color: 'white',
 								fontWeight: 700,
+								fontSize: 20,
 								// alignSelf: 'flex-end',
 							}}
 						>
@@ -140,7 +141,14 @@ export default function Home({ allPostsData }) {
 				</div> */}
 				</div>
 				<div>
-					<div style={{ textAlign: 'center', opacity: '0.5', marginTop: 50 }}>
+					<div
+						style={{
+							cursor: 'pointer',
+							textAlign: 'center',
+							opacity: '0.5',
+							marginTop: 25,
+						}}
+					>
 						<div style={{ color: 'white' }}>Get Started</div>
 						<div className={'animation_hover'}>
 							<ChevronDown color='white'></ChevronDown>

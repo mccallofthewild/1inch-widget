@@ -362,7 +362,6 @@ export const Swap = () => {
 			{searchState.isVisible ? (
 				<TokenSearch
 					provider={provider}
-					ref={tokenSearchRef}
 					filter={searchState.filter}
 					onClose={function (e) {
 						setSearchState({

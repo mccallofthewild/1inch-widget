@@ -173,7 +173,7 @@ export const SwapToken = (props: {
 							max={props.walletBalance || Infinity}
 							readOnly={props.readonly}
 							value={immediateLocalQuantity || ''}
-							step={'0.'.padEnd(props.token?.decimals - 1) + '1'}
+							step={'any'}
 							onChange={(e) => {
 								let val = e.currentTarget.value;
 								let isValid = false;

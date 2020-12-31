@@ -10,76 +10,76 @@ import { useWalletTokens } from '../hooks/useWalletTokens';
 import { useWeb3React } from '@web3-react/core';
 import { ethers } from 'ethers';
 import { useTokenBalances } from '../hooks/useTokenBalances';
+import { Loading } from '@geist-ui/react';
 // Just load the top 100 tokens then dynamically search for the rest?
-export const TokenSearch = React.forwardRef(
-	(
-		{
-			onSelect = (t) => {},
-			style,
-			onClose = () => {},
-			filter = () => true,
-			provider,
-		}: {
-			onSelect?: (t: OneInchGraph.Token) => any | void;
-			style: CSSProperties;
-			onClose?: Function;
-			filter?: (t: OneInchGraph.Token) => boolean;
-			provider: ethers.providers.Web3Provider;
-		},
-		ref
-	) => {
-		const allTokens = useAllTokens();
-		const walletTokens = useWalletTokens(provider);
-		const walletTokenBalances = useTokenBalances(provider, walletTokens);
-		const [query, setQuery, immediateQuery] = useDebounce('', 500);
-		const [displayedTokens, setDisplayedTokens] = useState<
-			OneInchGraph.Token[]
-		>([]);
+export const TokenSearch = ({
+	onSelect = (t) => {},
+	style,
+	onClose = () => {},
+	filter = () => true,
+	provider,
+}: {
+	onSelect?: (t: OneInchGraph.Token) => any | void;
+	style: CSSProperties;
+	onClose?: Function;
+	filter?: (t: OneInchGraph.Token) => boolean;
+	provider: ethers.providers.Web3Provider;
+}) => {
+	const allTokens = useAllTokens();
+	const walletTokens = useWalletTokens(provider);
+	const walletTokenBalances = useTokenBalances(provider, walletTokens);
+	const [query, setQuery, immediateQuery] = useDebounce('', 500);
+	const [displayedTokens, setDisplayedTokens] = useState<OneInchGraph.Token[]>(
+		[]
+	);
 
-		useEffect(() => {
-			setDisplayedTokens(
-				allTokens
-					.filter(
-						(t) =>
-							(t.symbol + ' ' + t.name)
-								.toLowerCase()
-								.includes(query.toLowerCase()) && filter(t)
-					)
-					.sort((tA, tB) => {
-						if (walletTokenBalances[tA.id] < walletTokenBalances[tB.id]) {
-							return -1;
-						}
-						if (walletTokenBalances[tA.id] == walletTokenBalances[tB.id]) {
-							return 0;
-						}
-						return 1;
-					})
-			);
-		}, [allTokens, query, filter, walletTokenBalances, walletTokens]);
-		useEffect(() => {
-			setQuery('');
-		}, [filter]);
-		return (
-			<div ref={ref} style={style} className={styles.token_search_container}>
-				<div
-					onClick={() => onClose()}
-					className={styles.token_search_close_button}
-				>
-					<CloseIcon></CloseIcon>
-				</div>
-				<div className={styles.token_search_bar_container}>
-					{/* <div className={styles.token_search_bar_icon}>
+	useEffect(() => {
+		setDisplayedTokens(
+			allTokens
+				.filter(
+					(t) =>
+						(t.symbol + ' ' + t.name)
+							.toLowerCase()
+							.includes(query.toLowerCase()) && filter(t)
+				)
+				.sort((tA, tB) => {
+					if (walletTokenBalances[tA.id] < walletTokenBalances[tB.id]) {
+						return -1;
+					}
+					if (walletTokenBalances[tA.id] == walletTokenBalances[tB.id]) {
+						return 0;
+					}
+					return 1;
+				})
+		);
+	}, [allTokens, query, filter, walletTokenBalances, walletTokens]);
+	useEffect(() => {
+		setQuery('');
+	}, [filter]);
+	return (
+		<div style={style} className={styles.token_search_container}>
+			<div
+				onClick={() => onClose()}
+				className={styles.token_search_close_button}
+			>
+				<CloseIcon></CloseIcon>
+			</div>
+			<div className={styles.token_search_bar_container}>
+				{/* <div className={styles.token_search_bar_icon}>
 					<TokenSearch.Icon></TokenSearch.Icon>
 				</div> */}
-					<input
-						onInput={(e) => setQuery(e.currentTarget.value)}
-						autoFocus={true}
-						placeholder={'Search ' + allTokens.length + ' Tokens'}
-						className={styles.token_search_bar_input}
-					></input>
-				</div>
-				<div className={styles.token_search_results_container}>
-					{displayedTokens.map((t) => (
+				<input
+					onInput={(e) => setQuery(e.currentTarget.value)}
+					autoFocus={true}
+					placeholder={'Search ' + allTokens.length + ' Tokens'}
+					className={styles.token_search_bar_input}
+				></input>
+			</div>
+			<div className={styles.token_search_results_container}>
+				{displayedTokens.length == 0 ? (
+					<Loading></Loading>
+				) : (
+					displayedTokens.map((t) => (
 						<div
 							style={{
 								display: 'flex',
@@ -106,14 +106,14 @@ export const TokenSearch = React.forwardRef(
 							</div>
 							{walletTokenBalances[t.id] ? <CheckCircle></CheckCircle> : null}
 						</div>
-					))}
-					<div style={{ height: '100px' }}></div>
-				</div>
-				<div className={styles.token_search_results_container_overlay}></div>
+					))
+				)}
+				<div style={{ height: '100px' }}></div>
 			</div>
-		);
-	}
-);
+			<div className={styles.token_search_results_container_overlay}></div>
+		</div>
+	);
+};
 
 const TokenSearchIcon = () => (
 	<svg
