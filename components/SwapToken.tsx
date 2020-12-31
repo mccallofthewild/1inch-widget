@@ -121,6 +121,7 @@ export const SwapToken = (props: {
 				</div>
 				<div className={styles.swap_form_token_amount_input_container}>
 					<Tooltip
+						trigger={'click'}
 						style={{ width: '100%' }}
 						text={
 							<div

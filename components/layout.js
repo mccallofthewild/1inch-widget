@@ -3,16 +3,18 @@ import styles from './layout.module.css';
 import Link from 'next/link';
 
 const name = '[Your Name]';
-export const siteTitle = 'Instant Crypto';
+export const siteTitle = 'BRUCE - DEX Crypto Swaps';
 
 export default function Layout({ children, home }) {
 	return (
-		<div className={styles.container}>
+		<div
+			className={`${styles.container} ${home ? styles.container__home : ''}`}
+		>
 			<Head>
 				<link rel='icon' href='/favicon.ico' />
 				<meta
 					name='description'
-					content='Learn how to build a personal website using Next.js'
+					content='The crypto token swap UX that packs a punch'
 				/>
 				{/* <meta
 					property='og:image'

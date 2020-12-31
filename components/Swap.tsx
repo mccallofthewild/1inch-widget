@@ -30,6 +30,7 @@ import anime from 'animejs';
 import { NoFragmentCyclesRule } from 'graphql';
 import { useWalletTokens } from '../hooks/useWalletTokens';
 import { useTokenBalances } from '../hooks/useTokenBalances';
+import { ArrowDown, RefreshCcw } from '@geist-ui/react-icons';
 rateLimitContractsAndOneInch();
 export const Swap = () => {
 	const allTokens = useAllTokens();
@@ -200,12 +201,11 @@ export const Swap = () => {
 			onSubmit={(e) => {
 				e.preventDefault();
 				console.log('submitting');
-				if (!web3.account) activateWeb3();
+				if (!web3.account) return;
 				if (+quantity > +(walletTokenBalances[fromToken.id] || 0)) {
 					setToast({
 						text: `Insufficient ${fromToken.symbol} balance`,
 					});
-					console.log('insufficeint');
 					return;
 				}
 				return swapState.execute();
@@ -213,15 +213,35 @@ export const Swap = () => {
 			className={styles.swap_container}
 		>
 			<div className={styles.swap_header}>
-				<div
+				{/* <div
 					className={[
 						styles.swap_header_item,
 						styles.swap_header_item_active,
 					].join(' ')}
 				>
 					SWAP
+				</div> */}
+				<div>
+					{' '}
+					<img height='26.97px' src='./images/bruce.svg' alt='logo' />
+					<div
+						style={{
+							fontSize: '9px',
+							color: '#979797',
+							textAlign: 'center',
+						}}
+					>
+						via{' '}
+						<a
+							style={{ color: '#979797' }}
+							target='_blank'
+							href='https://1inch.exchange'
+						>
+							1inch.exchange
+						</a>
+					</div>
 				</div>
-				<div className={styles.swap_header_item}>INFO</div>
+				{/* <div className={styles.swap_header_item}>INFO</div> */}
 			</div>
 			<div className={styles.swap_form_container}>
 				<SwapToken
@@ -229,7 +249,8 @@ export const Swap = () => {
 						setSearchState({
 							isVisible: true,
 							onSelect: (t) => setFromToken(t),
-							filter: (t) => t.id != toToken.id,
+							filter: (t) => true,
+							// filter: (t) => t.id != toToken.id,
 						});
 					}}
 					quantity={quantity}
@@ -238,6 +259,12 @@ export const Swap = () => {
 					walletBalance={walletTokenBalances[fromToken?.id]}
 				></SwapToken>
 				<div className={styles.swap_form_token_divider_container}>
+					<div
+						style={{ paddingTop: 5, marginRight: '10px', marginLeft: '7px' }}
+						className={styles.swap_form_token_divider_action_icon}
+					>
+						<ArrowDown size={22} color={'rgba(0, 0, 0, 0.25)'}></ArrowDown>
+					</div>
 					{/* <OneInchLogo></OneInchLogo> */}
 					<div className={styles.swap_form_token_divider}></div>
 					<div
@@ -279,18 +306,14 @@ export const Swap = () => {
 								}
 							}
 						}}
+						style={{
+							marginLeft: '15px',
+							marginTop: '8px',
+						}}
 						className={styles.swap_form_token_divider_action_icon}
 					>
 						{/* Refresh Icon */}
-						<svg
-							xmlns='http://www.w3.org/2000/svg'
-							height='24'
-							viewBox='0 0 24 24'
-							width='24'
-						>
-							<path d='M0 0h24v24H0z' fill='none' />
-							<path d='M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z' />
-						</svg>
+						<RefreshCcw size={20}></RefreshCcw>
 					</div>
 				</div>
 				<SwapToken
@@ -322,8 +345,14 @@ export const Swap = () => {
 					</div>
 				</div>
 
-				<button type='submit' className={styles.swap_form_submit_button}>
-					{web3.account ? 'Swap Now' : 'Connect Wallet'}
+				<button
+					onClick={() => {
+						if (!web3.account) activateWeb3();
+					}}
+					type='submit'
+					className={styles.swap_form_submit_button}
+				>
+					{web3.account ? 'Swap Tokens' : 'Connect Wallet'}
 				</button>
 				<div className={styles.swap_form_meta_container}>
 					<div>Max price slippage: 1%</div>
@@ -332,13 +361,14 @@ export const Swap = () => {
 			</div>
 			{searchState.isVisible ? (
 				<TokenSearch
+					provider={provider}
 					ref={tokenSearchRef}
 					filter={searchState.filter}
 					onClose={function (e) {
 						setSearchState({
 							isVisible: false,
 							onSelect: () => {},
-							filter: (t) => false,
+							filter: (t) => true,
 						});
 					}}
 					onSelect={(t) => {

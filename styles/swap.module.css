@@ -1,5 +1,12 @@
 .swap_container {
-	min-height: 459px;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	/* margin: 30px; */
+	/* min-height: 459px; */
+	height: 100%;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -7,7 +14,6 @@
 	transition: all 500ms ease;
 	position: relative;
 	overflow: hidden;
-	margin: 30px;
 	box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 	border-radius: 20px;
 	padding: 20px;
@@ -32,7 +38,7 @@
 
 .swap_form_container {
 	width: 100%;
-	margin-top: 30px;
+	margin-top: 20px;
 }
 
 .swap_form_token_container {
@@ -64,6 +70,7 @@
 	display: flex;
 	justify-content: flex-start;
 	align-items: center;
+	/* filter: contrast(150%) hue-rotate(10deg) saturate(110%); */
 	/* width: 15%; */
 }
 
@@ -90,6 +97,11 @@
 
 .swap_form_token_amount_input {
 	composes: input from 'utils.module.css';
+}
+.swap_form_token_amount_input:read-only {
+	background: rgba(0, 0, 0, 0.02);
+	box-shadow: none;
+	/* border: 1px solid rgba(0, 0, 0, 0.1); */
 }
 
 .swap_form_token_amount_in_fiat_container {
@@ -119,20 +131,21 @@
 .swap_form_token_divider_container {
 	display: flex;
 	align-items: center;
-	margin-top: 30px;
-	margin-bottom: 30px;
+	justify-content: space-between;
+	width: 100%;
+	margin-top: 15px;
+	margin-bottom: calc(15px - 0.75rem / 2);
 }
 
 .swap_form_token_divider {
 	height: 0.5px;
 	background: rgba(0, 0, 0, 0.06);
-	width: 85%;
+	width: 60%;
 }
 
 .swap_form_token_divider_action_icon {
-	margin-left: 5%;
-	width: 30px;
-	height: 30px;
+	/* width: 25px;
+	height: 25px; */
 	cursor: pointer;
 	transition: all 250ms ease;
 }
@@ -140,8 +153,8 @@
 	opacity: 0.5;
 }
 .swap_form_token_divider_action_icon > svg {
-	width: 100%;
-	height: 100%;
+	/* width: 100%;
+	height: 100%; */
 }
 
 .swap_form_token_dex_info_container {
