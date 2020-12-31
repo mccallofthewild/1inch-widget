@@ -1,10 +1,9 @@
 import Head from 'next/head';
 import styles from './layout.module.css';
-import utilStyles from '../styles/utils.module.css';
 import Link from 'next/link';
 
 const name = '[Your Name]';
-export const siteTitle = 'Nevermore - Instant Crypto';
+export const siteTitle = 'Instant Crypto';
 
 export default function Layout({ children, home }) {
 	return (

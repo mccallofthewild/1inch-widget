@@ -1,36 +1,34 @@
-import { Loading, Row, Spinner } from '@geist-ui/react';
-import { useEffect, useState } from 'react';
-import { OneInchApi } from '../generated/OneInchApi';
-import { calc } from '../helpers/calc';
+import { Loading } from '@geist-ui/react';
+import { BigNumber } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
+import { useMemo, useState } from 'react';
+import { OneInchGraph } from '../generated/OneInchGraph';
+import { abbreviateNumber } from '../helpers/abbreviateNumber';
+import { useAllTokens } from '../hooks/useAllTokens';
+import { useCoinPriceUSD } from '../hooks/useCoinPriceUSD';
+import { useQuote } from '../hooks/useQuote';
 export const CoinPriceUSD = (props: {
-	stableCoinAddress: string;
-	tokenAddress: string;
+	token: OneInchGraph.Token;
 	tokenQuantity: string;
+	prefix?: string;
+	isReady?: boolean;
 }) => {
-	const [price, setPrice] = useState('');
-	const [loading, setLoading] = useState(true);
-
-	useEffect(() => {
-		setPrice('');
-		if (!props.tokenAddress || !props.stableCoinAddress) return;
-		if (props.stableCoinAddress == props.tokenAddress) {
-			setPrice('1.00');
-		}
-		// https://coinmarketcap.com/api/documentation/v1/#operation/getV1CryptocurrencyMarketpairsLatest
-		new OneInchApi.QuoteSwapApi()
-			.getQuote({
-				toTokenAddress: props.stableCoinAddress,
-				fromTokenAddress: props.tokenAddress,
-				amount: 1,
-			})
-			.then((q) => setPrice(calc`${q.toTokenAmount} * ${props.tokenQuantity}`));
-	}, [props.tokenAddress, props.tokenAddress, props.tokenQuantity]);
-	return (
-		<Row>
-			<div style={{ display: 'flex', alignItems: 'center' }}>
-				<span>≈ $</span>
-				{price ? price : <Spinner size='small' />}
-			</div>
-		</Row>
+	let price = useCoinPriceUSD(props);
+	price = useMemo(() => (price ? abbreviateNumber(price) : ''), [price]);
+	return price ? (
+		<>
+			{props.prefix}${price}
+		</>
+	) : (
+		<span
+			style={{
+				width: '20px',
+				height: '8px',
+				display: 'inline-block',
+				position: 'relative',
+			}}
+		>
+			<Loading style={{ width: '1em', height: '0.5em' }}></Loading>
+		</span>
 	);
 };

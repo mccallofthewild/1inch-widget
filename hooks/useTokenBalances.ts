@@ -1,15 +1,17 @@
+import { useWeb3React } from '@web3-react/core';
 import { Web3ReactManagerReturn } from '@web3-react/core/dist/types';
 import { BigNumber, ethers } from 'ethers';
+import { formatUnits } from 'ethers/lib/utils';
 import { useEffect, useState } from 'react';
 import { ERC20__factory } from '../generated/contracts';
 import { OneInchGraph } from '../generated/OneInchGraph';
 
 export const useTokenBalances = (
-	web3: Web3ReactManagerReturn,
 	provider: ethers.providers.Provider,
 	tokens: OneInchGraph.Token[]
 ) => {
-	const [state, setState] = useState<{ [key: string]: BigNumber }>({});
+	const web3 = useWeb3React();
+	const [state, setState] = useState<{ [key: string]: string }>({});
 	const loadTokenBalance = async (token: OneInchGraph.Token) => {
 		let balance: BigNumber;
 		if (token.symbol == 'ETH') {
@@ -19,9 +21,10 @@ export const useTokenBalances = (
 				web3.account
 			);
 		}
-		return balance;
+		return formatUnits(balance, BigNumber.from(token.decimals));
 	};
 	useEffect(() => {
+		if (!provider) return;
 		if (!web3.account) return;
 		let tokenBalances = {};
 		tokens.forEach(async (t) => {

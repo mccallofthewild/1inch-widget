@@ -1,12 +1,28 @@
+@keyframes FadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
 .token_search_container {
-	composes: card from global;
+	composes: card from 'utils.module.css';
+	background: white;
 	position: relative;
+}
+
+.token_search_close_button {
+	cursor: pointer;
+	display: flex;
+	justify-content: flex-end;
 }
 
 .token_search_bar_container {
 	display: flex;
 	justify-content: space-around;
 	align-items: center;
+	overflow: hidden;
 }
 
 /* .token_search_bar_icon {
@@ -18,7 +34,7 @@
 
 .token_search_bar_input {
 	width: 100%;
-	composes: global_input from global;
+	composes: input from 'utils.module.css';
 }
 
 .token_search_results_container {
@@ -28,12 +44,12 @@
 }
 .token_search_results_container_overlay {
 	position: absolute;
-	bottom: 10px;
+	bottom: 0px;
 	left: 0;
 	right: 0;
 	height: 25%;
 	pointer-events: none;
-	background: linear-gradient(to top, white, transparent);
+	background: linear-gradient(to top, white, rgba(255, 255, 255, 0));
 }
 
 .token_search_results_item {

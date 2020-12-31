@@ -1,4 +1,12 @@
 .swap_container {
+	min-height: 459px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-direction: column;
+	transition: all 500ms ease;
+	position: relative;
+	overflow: hidden;
 	margin: 30px;
 	box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 	border-radius: 20px;
@@ -9,6 +17,7 @@
 	display: flex;
 	justify-content: space-around;
 	align-items: center;
+	width: 100%;
 }
 
 .swap_header_item {
@@ -22,6 +31,7 @@
 }
 
 .swap_form_container {
+	width: 100%;
 	margin-top: 30px;
 }
 
@@ -31,6 +41,8 @@
 	flex-direction: column;
 }
 .swap_form_token_label {
+	min-height: 0.75rem;
+	min-width: 20px;
 	font-size: 0.75rem;
 	font-weight: 600;
 	align-self: flex-start;
@@ -57,6 +69,7 @@
 
 .swap_form_token_select_icon_image {
 	width: 34px;
+	height: 34px;
 	/* height: 30px; */
 	/* width: 30px; */
 }
@@ -76,7 +89,7 @@
 }
 
 .swap_form_token_amount_input {
-	composes: global_input from global;
+	composes: input from 'utils.module.css';
 }
 
 .swap_form_token_amount_in_fiat_container {
@@ -87,6 +100,8 @@
 }
 
 .swap_form_token_amount_in_fiat {
+	display: flex;
+	align-items: center;
 	text-align: right;
 	height: 100%;
 	width: 100%;
@@ -95,7 +110,7 @@
 	white-space: nowrap;
 	align-self: flex-end;
 	justify-self: flex-end;
-	font-size: 14px;
+	font-size: 12px;
 	color: rgba(0, 0, 0, 0.3);
 	/* padding-bottom: 15px; */
 	padding-left: 10px;
@@ -155,6 +170,7 @@
 }
 
 .swap_form_submit_button {
+	cursor: pointer;
 	width: 100%;
 	border-radius: 10px;
 	background: black;
@@ -164,6 +180,10 @@
 	padding-top: 15px;
 	padding-bottom: 15px;
 	margin-top: 20px;
+}
+
+.swap_form_submit_button:focus {
+	outline: none;
 }
 
 .swap_form_meta_container {

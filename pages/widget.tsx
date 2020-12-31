@@ -11,26 +11,26 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { SelectToken } from '../components/SelectToken';
 import { useAllTokens } from '../hooks/useAllTokens';
 import { useTokenBalances } from '../hooks/useTokenBalances';
-import { useFromTokens } from '../hooks/useFromTokens';
-import { useTokenTxsFromAccount } from '../hooks/useTokenTxsFromAccount';
+import { useWalletTokens } from '../hooks/useWalletTokens';
 import { Button, Card, Col, Input, Row, Spacer, Text } from '@geist-ui/react';
 import { CoinPriceUSD } from '../components/CoinPriceUSD';
+import { useQuote } from '../hooks/useQuote';
 
 const widget = () => {
 	const router = useRouter();
 	const web3 = useWeb3React();
 	const allTokens = useAllTokens();
 	const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
-	const tokenTxsFromAccount = useTokenTxsFromAccount(web3, provider);
 	const [fromToken, setFromToken] = useState<OneInchGraph.Token | null>(null);
 	const [toToken, setToToken] = useState<OneInchGraph.Token | undefined>();
 	const [amountToSend, setAmountToSend] = useDebounce<string | number>(1, 1000);
-	const [quote, setQuote] = useState<OneInchApi.Quote>();
+	const quote = useQuote(amountToSend + '', fromToken, toToken);
 	const [swapStatus, setSwapStatus] = useState<
 		'DORMANT' | 'SUCCESS' | 'PENDING' | 'FAILED'
 	>();
-	const fromTokens = useFromTokens(tokenTxsFromAccount, allTokens);
+	const fromTokens = useWalletTokens(provider);
 	const fromTokenBalances = useTokenBalances(web3, provider, fromTokens);
+
 	const activateWeb3 = async () => {
 		const connector = new InjectedConnector({
 			supportedChainIds: [
@@ -44,6 +44,12 @@ const widget = () => {
 		localStorage.setItem('didActivateWeb3', '1');
 	};
 	useEffect(() => {
+		if (!fromToken && !toToken && allTokens.length) {
+			setFromToken(allTokens[0]);
+			setToToken(allTokens[1]);
+		}
+	}, [fromToken, toToken, allTokens]);
+	useEffect(() => {
 		if (localStorage.getItem('didActivateWeb3')) activateWeb3();
 	}, []);
 
@@ -56,82 +62,7 @@ const widget = () => {
 		amountInputRef.value = val;
 		setAmountToSend(val);
 	}, [fromToken]);
-	useEffect(() => {
-		const balance = fromTokenBalances[fromToken?.id];
-		if (![fromToken, toToken, web3.account, balance].every((el) => !!el))
-			return;
-		new OneInchApi.QuoteSwapApi()
-			.getQuote({
-				fromTokenAddress: fromToken.id,
-				toTokenAddress: toToken.id,
-				amount: parseInt(
-					ethers.utils
-						.parseUnits(
-							amountToSend.toString(),
-							ethers.BigNumber.from(fromToken.decimals)
-						)
-						.toString()
-				),
-			})
-			.then((quote) => {
-				setQuote(quote);
-			});
-	}, [fromToken, toToken, web3.account, amountToSend, fromTokenBalances]);
-	const swapTokens = async () => {
-		const parsedAmountFromToken = ethers.utils
-			.parseUnits(
-				amountToSend.toString(),
-				ethers.BigNumber.from(fromToken.decimals)
-			)
-			.toString();
-		const { address } = await new OneInchApi.ApproveApi().getSpenderAddress();
-		const signer = provider.getSigner();
-		const contract = await ERC20__factory.connect(fromToken.id, signer);
-		if (quote.fromToken.symbol != 'ETH') {
-			const tx = await contract.approve(
-				address,
-				BigNumber.from(parsedAmountFromToken)
-			);
-			while (true) {
-				await new Promise((r) => setTimeout(r, 1000));
-				const receipt = await provider.getTransactionReceipt(tx.hash);
-				if (receipt) {
-					break;
-				} else console.log({ receipt });
-			}
-		}
-		await new OneInchApi.QuoteSwapApi()
-			.swap({
-				fromTokenAddress: fromToken.id,
-				toTokenAddress: toToken.id,
-				amount: (parsedAmountFromToken as unknown) as number,
-				slippage: 1,
-				fromAddress: web3.account,
-			})
-			.then(async (swap) => {
-				const {
-					from,
-					to,
-					data,
-					value,
-					// gasPrice,
-					// gas
-				} = await swap.tx;
-				return signer.sendTransaction({
-					from,
-					to,
-					data,
-					value: ethers.BigNumber.from(value),
-				});
-			})
-			.then(() => {
-				setSwapStatus('SUCCESS');
-			})
-			.catch((e) => {
-				console.error(e);
-				setSwapStatus('FAILED');
-			});
-	};
+
 	return (
 		<div style={{ margin: 30 }}>
 			<Card shadow>
@@ -205,7 +136,6 @@ const widget = () => {
 					<Spacer></Spacer>
 
 					<CoinPriceUSD
-						stableCoinAddress={allTokens.find((t) => t.symbol == 'DAI')?.id}
 						tokenAddress={fromToken?.id}
 						tokenQuantity={amountToSend + ''}
 					></CoinPriceUSD>
@@ -228,7 +158,7 @@ const widget = () => {
 						</p>
 					) : null}
 
-					<button
+					<Button
 						loading={swapStatus == 'PENDING'}
 						type={
 							swapStatus == 'SUCCESS'
@@ -242,7 +172,7 @@ const widget = () => {
 						size={'large'}
 					>
 						Swap!
-					</button>
+					</Button>
 				</div>
 			</Card>
 		</div>

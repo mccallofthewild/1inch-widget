@@ -20,14 +20,16 @@ export default function components() {
 			</div>
 			<h2>One Token</h2>
 			<CoinPriceUSD
+				tokenDecimals={18}
+				prefix='≅ $'
 				tokenAddress='0x0000000000000000000000000000000000000000'
-				stableCoinAddress='0x6b175474e89094c44da98b954eedeac495271d0f'
 				tokenQuantity='1'
 			></CoinPriceUSD>
 			<h2>5 Tokens</h2>
 			<CoinPriceUSD
+				tokenDecimals={18}
+				prefix='≅ $'
 				tokenAddress='0x0000000000000000000000000000000000000000'
-				stableCoinAddress='0x6b175474e89094c44da98b954eedeac495271d0f'
 				tokenQuantity='5'
 			></CoinPriceUSD>
 		</div>
