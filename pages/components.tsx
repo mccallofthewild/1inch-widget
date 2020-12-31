@@ -15,11 +15,11 @@ export default function components() {
 			}}
 		>
 			<div style={{ width: 400 }}>
-				<TokenSearch></TokenSearch>
+				{/* <TokenSearch onSelect={()=>{}}></TokenSearch> */}
 				<Swap></Swap>
 			</div>
 			<h2>One Token</h2>
-			<CoinPriceUSD
+			{/* <CoinPriceUSD
 				tokenDecimals={18}
 				prefix='≅ $'
 				tokenAddress='0x0000000000000000000000000000000000000000'
@@ -31,7 +31,7 @@ export default function components() {
 				prefix='≅ $'
 				tokenAddress='0x0000000000000000000000000000000000000000'
 				tokenQuantity='5'
-			></CoinPriceUSD>
+			></CoinPriceUSD> */}
 		</div>
 	);
 }
