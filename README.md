@@ -31,6 +31,8 @@ Packs a Punch 👊
     * Typescript interfaces generated from ABI's using TypeChain
     
 * Tech
+  * Typescript
+  * React
   * Next.js - Static generated with tokens & leading token logos pre-loaded for instant embeded rendering 
   * Web3React - Enabling wallet interconnectivity
   * Ethers - Ethereum network interaction 
@@ -38,6 +40,7 @@ Packs a Punch 👊
 # 🚀 Usage & Deployment
 
 ### Requirements 
+* Metamask (or other web3-compatible browser extension)
 * Node.js >=v10.1.0
 * NPM or Yarn 
 * Git
