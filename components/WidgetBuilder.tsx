@@ -74,7 +74,7 @@ export const WidgetBuilder = () => {
 						</Text>
 					</Card>
 					<Spacer y={1}></Spacer>
-					<Card shadow>
+					<Card style={{ overflow: 'hidden' }} shadow>
 						<Grid.Container alignItems='center' justify='space-between'>
 							<div>
 								<Text h4>Embed Code</Text>
@@ -96,7 +96,9 @@ export const WidgetBuilder = () => {
 							</Button>
 						</Grid.Container>
 						<Divider></Divider>
-						<Code style={{ color: 'black' }}>{widgetHtml}</Code>
+						<Code style={{ whiteSpace: 'pre-wrap', color: 'black' }}>
+							{widgetHtml}
+						</Code>
 					</Card>
 					<Spacer y={2}></Spacer>
 				</Grid>
