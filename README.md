@@ -38,12 +38,9 @@ Packs a Punch 👊
 # 🚀 Usage & Deployment
 
 ### Requirements 
-* A non-empty Arweave wallet
 * Node.js >=v10.1.0
 * NPM or Yarn 
 * Git
-
-Looking to spin up the backend? That's a piece of cake too. 
 
 ### ⬇️ Clone the repository
 ```bash
