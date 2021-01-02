@@ -21,6 +21,8 @@ Packs a Punch 👊
     * Allows Token organizations to designate a single token for the widget to output
   * Trade pair inversion (ETH-DAI to DAI-ETH in one click)
   * Auto-generated token logos for non-standard tokens 
+* Upcoming:
+  * CHI gas token support
     
 * Type Safe API's 
   * 1inch Swagger V2: 
