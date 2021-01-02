@@ -14,23 +14,25 @@ Packs a Punch 👊
 
 
 # 🏊‍♀️  Product Deepdive 
-* Features:
+## Features:
   * Over 2300 Tokens
   * Automatic fiat conversions via stablecoin quotes
   * Static Output Token
     * Allows Token organizations to designate a single token for the widget to output
   * Trade pair inversion (ETH-DAI to DAI-ETH in one click)
   * Auto-generated token logos for non-standard tokens 
-    
-* Type Safe API's 
+### ⏰ Upcoming:
+  * CHI gas token support
+
+## Tech
+### 🦺 Type Safe API's 
   * 1inch Swagger V2: 
     * Typescript libraries generated via OpenAPI Tools
   * 1inch Subgraph GraphQL: 
     * Typescript interfaces generated via GraphQL Codegen
   * Contracts: OneSplit & ERC20:
     * Typescript interfaces generated from ABI's using TypeChain
-    
-* Tech
+### 🥞 Stack
   * Typescript
   * React
   * Next.js - Static generated with tokens & leading token logos pre-loaded for instant embeded rendering 
