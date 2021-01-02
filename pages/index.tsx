@@ -108,7 +108,7 @@ export default function Home(props: WidgetProps) {
 										// alignSelf: 'flex-end',
 									}}
 								>
-									The Embeddable Swap UX that <br></br> packs a punch{' '}
+									The Swap UX that <br></br> packs a punch{' '}
 									<div id='fist' style={{ display: 'inline-block' }}>
 										👊
 									</div>

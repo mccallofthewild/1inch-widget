@@ -23,7 +23,7 @@ export const WidgetBuilder = () => {
 	const clipboard = useClipboard();
 	const toast = useToasts();
 	const allTokens = useAllTokens();
-	const widgetRef = useRef<HTMLElement>();
+	const widgetRef = useRef<HTMLIFrameElement>();
 	const [state, setState] = useState<{
 		toTokenSymbol: string;
 	}>({ toTokenSymbol: null });
