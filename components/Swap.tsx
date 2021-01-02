@@ -65,7 +65,9 @@ export const Swap = (props: {
 					1, // Mainnet
 				],
 			});
-			await web3.activate(connector);
+			await web3.activate(connector, (e) => {
+				alert(e.message);
+			});
 			setProvider(
 				new ethers.providers.Web3Provider(await connector.getProvider())
 			);
