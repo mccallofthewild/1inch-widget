@@ -1,7 +1,7 @@
 import { Button, Loading, Spacer, Spinner, Tooltip } from '@geist-ui/react';
 import { BigNumber } from 'ethers';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { OneInchGraph } from '../generated/OneInchGraph';
 import { getGradients } from '../helpers/getGradients';
 import styles from '../styles/swap.module.css';
@@ -9,6 +9,9 @@ import { CoinPriceUSD } from './CoinPriceUSD';
 import { useDebounce } from '../hooks/useDebounce';
 import { safeParseUnits } from '../helpers/safeParseUnits';
 import { Check } from '@geist-ui/react-icons';
+import { getTokenImageUrl } from '../helpers/getTokenImageUrl';
+import { Store } from '../store/Store';
+import { LoadingText } from './LoadingText';
 
 const loadedImages: {
 	[key: string]: boolean;
@@ -21,7 +24,10 @@ export const SwapToken = (props: {
 	onClickToChangeToken: Function;
 	loading?: boolean;
 	walletBalance?: string;
+	hasBalance: boolean;
+	isStatic?: boolean;
 }) => {
+	const store = Store.useContext();
 	const [localQuantity, setLocalQuantity, immediateLocalQuantity] = useDebounce<
 		string | number
 	>(props.quantity, 450);
@@ -38,17 +44,9 @@ export const SwapToken = (props: {
 	useEffect(() => {
 		setImageLoadError(null);
 		setImageLoaded(false);
-		setImageUrl(
-			props.token
-				? `https://tokens.1inch.exchange/${
-						props.token?.symbol == 'ETH'
-							? '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-							: props.token?.id
-				  }.png`
-				: null
-		);
+		setImageUrl(props.token ? getTokenImageUrl(props.token) : null);
 	}, [props.token]);
-
+	const gradient = useMemo(() => getGradients().random(), [props.token]);
 	return (
 		<div
 			id={'token--' + props.token?.symbol}
@@ -60,12 +58,19 @@ export const SwapToken = (props: {
 			<div className={styles.swap_form_token_select_container}>
 				<div className={styles.swap_form_token_select}>
 					<div
-						onClick={() => props.onClickToChangeToken()}
+						onClick={() => {
+							if (props.isStatic) return;
+							props.onClickToChangeToken();
+						}}
 						className={styles.swap_form_token_select_icon}
 					>
 						{props.token ? (
 							<>
 								<img
+									onLoadStart={() => {
+										setImageLoadError(null);
+										setImageLoaded(false);
+									}}
 									style={{
 										...(!imageLoaded
 											? {
@@ -75,12 +80,14 @@ export const SwapToken = (props: {
 											: {}),
 										display: !imageLoaded ? 'none' : 'block',
 									}}
-									src={imageUrl}
+									src={
+										store.state.ui.preloadedDataImageUris[imageUrl] || imageUrl
+									}
 									onLoad={(e) => {
 										setImageLoaded(true);
 										loadedImages[imageUrl] = true;
 									}}
-									onError={(e) => setImageLoadError(e)}
+									onError={(e) => setImageLoadError('error')}
 									alt={props.token.symbol}
 									className={styles.swap_form_token_select_icon_image}
 								/>
@@ -94,7 +101,7 @@ export const SwapToken = (props: {
 										<div
 											style={{
 												transition: 'all 1s ease',
-												background: getGradients().random(),
+												background: gradient,
 												borderRadius: '100%',
 												display: 'flex',
 												justifyContent: 'center',
@@ -114,90 +121,90 @@ export const SwapToken = (props: {
 								className={styles.swap_form_token_select_icon_image}
 							></Spinner>
 						)}
-						<div className={styles.swap_form_token_select_icon_chevron_down}>
+						<div
+							style={{
+								opacity: props.isStatic ? 0 : 1,
+							}}
+							className={styles.swap_form_token_select_icon_chevron_down}
+						>
 							<DropDownIcon></DropDownIcon>
 						</div>
 					</div>
 				</div>
 				<div className={styles.swap_form_token_amount_input_container}>
-					<Tooltip
-						trigger={'click'}
-						style={{ width: '100%' }}
-						text={
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-								}}
-							>
-								{props.walletBalance ? (
-									<>
-										<small
-											style={{
-												display: 'block',
-												maxWidth: '70%',
-												overflow: 'hidden',
-												textOverflow: 'ellipsis',
-											}}
-											title={props.walletBalance}
-										>
-											<code>{props.walletBalance}</code>
-										</small>
-										<Spacer x={0.8}></Spacer>
-										<Button
-											onClick={() => setLocalQuantity(props.walletBalance)}
-											size='mini'
-											type='secondary'
-											ghost={props.walletBalance == immediateLocalQuantity}
-										>
-											{props.walletBalance == immediateLocalQuantity ? (
-												<Check></Check>
-											) : (
-												'Max'
-											)}
-										</Button>
-									</>
-								) : (
-									<small>
-										<code>no balance</code>
-									</small>
-								)}
-							</div>
-						}
-						placement='bottom'
-					>
-						<input
-							autoFocus={!props.readonly}
-							min='0'
-							max={props.walletBalance || Infinity}
-							readOnly={props.readonly}
-							value={immediateLocalQuantity || ''}
-							step={'any'}
-							onChange={(e) => {
-								let val = e.currentTarget.value;
-								let isValid = false;
-								try {
-									let expectedFormat = formatUnits(
-										safeParseUnits(val, props.token),
-										props.token?.decimals
-									);
+					<input
+						required={!props.readonly}
+						autoFocus={!props.readonly}
+						min='0'
+						max={props.walletBalance || Infinity}
+						readOnly={props.readonly}
+						value={immediateLocalQuantity || ''}
+						step={'any'}
+						onChange={(e) => {
+							let val = e.currentTarget.value;
+							let isValid = false;
+							try {
+								let expectedFormat = formatUnits(
+									safeParseUnits(val, props.token),
+									props.token?.decimals
+								);
 
-									if (+expectedFormat != +val) {
-										e.currentTarget.value = expectedFormat;
-										val = expectedFormat;
-									}
-								} catch (e) {}
-
-								if (val != undefined) {
-									setLocalQuantity(val || 0);
+								if (+expectedFormat != +val) {
+									e.currentTarget.value = expectedFormat;
+									val = expectedFormat;
 								}
+							} catch (e) {}
+
+							if (val != undefined) {
+								setLocalQuantity(val || 0);
+							}
+						}}
+						type='number'
+						placeholder={props.loading ? 'loading...' : '1.32009'}
+						className={styles.swap_form_token_amount_input}
+					></input>
+					{!props.readonly ? (
+						<div
+							style={{
+								marginBottom: '-1em',
+								textAlign: 'center',
+								opacity: props.hasBalance ? 1 : 0,
+								...(props.hasBalance &&
+								props.walletBalance < immediateLocalQuantity
+									? { color: 'red' }
+									: {}),
 							}}
-							type='number'
-							placeholder={props.loading ? 'loading...' : '1.32009'}
-							className={styles.swap_form_token_amount_input}
-						></input>
-					</Tooltip>
+							className={styles.swap__input_descriptor_text}
+						>
+							/{' '}
+							<LoadingText
+								loading={!props.walletBalance && props.hasBalance}
+								text={
+									<span>
+										{props.walletBalance?.slice(0, 10)}… (
+										{props.walletBalance == immediateLocalQuantity ? (
+											<span
+												style={{
+													transform: 'translateY(4px)',
+													display: 'inline-block',
+												}}
+											>
+												<Check size={15}></Check>
+											</span>
+										) : (
+											<u
+												onClick={() => setLocalQuantity(props.walletBalance)}
+												style={{ cursor: 'pointer' }}
+											>
+												MAX
+											</u>
+										)}
+										)
+									</span>
+								}
+							></LoadingText>
+						</div>
+					) : null}
 				</div>
 				<div className={styles.swap_form_token_amount_in_fiat_container}>
 					<div className={styles.swap_form_token_amount_in_fiat}>
@@ -211,6 +218,11 @@ export const SwapToken = (props: {
 								tokenQuantity={props.quantity}
 							></CoinPriceUSD>
 						</div>
+						{/* {props.walletBalance ? (
+							<div title={props.walletBalance}>
+								bal = {props.walletBalance?.slice(0, 5)}…
+							</div>
+						) : null} */}
 					</div>
 				</div>
 			</div>

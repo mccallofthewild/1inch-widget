@@ -1,168 +1,224 @@
 import Head from 'next/head';
 import Layout, { siteTitle } from '../components/layout';
 import Link from 'next/link';
-import { Card, Code, Text, useMediaQuery } from '@geist-ui/react';
-import { useLayoutEffect, useState } from 'react';
-import { TokenSearch } from '../components/TokenSearch';
+import {
+	Button,
+	Card,
+	Code,
+	Grid,
+	Row,
+	Spacer,
+	Text,
+	useMediaQuery,
+} from '@geist-ui/react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Swap } from '../components/Swap';
-import pageStyles from './index.module.css';
-import { ChevronDown } from '@geist-ui/react-icons';
-export default function Home({ allPostsData }) {
-	const [iframeUrl, setIframeUrl] = useState(``);
-	const [widgetHtml, setWidgetHtml] = useState('');
-	useLayoutEffect(() => {
-		setIframeUrl(`${window.location.origin}/widget`);
-		const html = document.getElementById('widget-html').outerHTML;
-		if (html != widgetHtml) {
-			setWidgetHtml(html);
+import { ArrowRight, ChevronDown } from '@geist-ui/react-icons';
+import { getStaticProps as widgetGetStaticProps, WidgetProps } from './widget';
+import { GetStaticProps } from 'next';
+import { Store } from '../store/Store';
+import { animateHomePageText } from '../helpers/animateHomePageText';
+import { WidgetBuilder } from '../components/WidgetBuilder';
+import styles from './index.module.css';
+export default function Home(props: WidgetProps) {
+	const store = Store.useContext();
+	useEffect(() => {
+		if (props.preloadedTokenImageDataUris) {
+			for (let imageUrl in props.preloadedTokenImageDataUris) {
+				store.dispatch('AddPreloadedDataImageUri', {
+					url: imageUrl,
+					dataURI: props.preloadedTokenImageDataUris[imageUrl],
+				});
+			}
 		}
-	});
-	const isSmallScreen = useMediaQuery('sm', {
+	}, [props.preloadedTokenImageDataUris]);
+
+	useLayoutEffect(() => {
+		animateHomePageText();
+	}, []);
+
+	const isSmallScreen = useMediaQuery('md', {
 		match: 'down',
+		ssrMatchMedia: (query) => {
+			console.log({ query });
+			return {
+				matches: true,
+			};
+		},
 	});
 
 	console.log({ isSmallScreen });
+
+	const textAlign = isSmallScreen ? 'center' : 'left';
+
+	const scrollToBuilder = () => {
+		document.getElementById('widget-builder-area').scrollIntoView({
+			behavior: 'smooth',
+		});
+	};
 
 	return (
 		<Layout home>
 			<Head>
 				<title>{siteTitle}</title>
 			</Head>
-			<div
-				style={{
-					display: 'flex',
-					flexDirection: 'column',
-					justifyContent: 'center',
-					alignItems: 'center',
-					height: '100%',
-					width: '100%',
-				}}
-			>
-				<div
+			<Grid.Container className={styles.hero_section}>
+				<Grid.Container
 					style={{
-						display: 'flex',
-						flexWrap: 'wrap',
-						justifyContent: 'center',
-						alignItems: isSmallScreen ? 'center' : 'flex-start',
-						height: '100%',
-						maxWidth: '800px',
-						marginTop: '20vh',
+						// maxWidth: '800px',
+						paddingTop: '10vh',
 					}}
+					justify='center'
+					alignItems='center'
+					xs={24}
 				>
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							width: isSmallScreen ? '100%' : '50%',
-							marginTop: 30,
-						}}
-					>
-						<div
-							style={{
-								fontSize: isSmallScreen ? 30 : 69,
-								color: '#FFFFFF',
-								fontWeight: 800,
-								lineHeight: '1.2em',
-								textAlign: isSmallScreen ? 'center' : 'left',
-							}}
+					<Grid.Container justify='center' gap={2} xs={24} md={14}>
+						<Grid
+							xs={24}
+							md={12}
+							justify='center'
+							alignItems={isSmallScreen ? 'center' : 'flex-start'}
 						>
-							MEET BRUCE.
-						</div>
-						<div
-							style={{
-								display: 'flex',
-								marginTop: 54,
-								color: 'white',
-								fontWeight: 700,
-								fontSize: 20,
-								// alignSelf: 'flex-end',
-							}}
-						>
-							The Ethereum swap UI that <br></br> packs a punch
-						</div>
-						<div
-							style={{
-								display: 'flex',
-								marginTop: 20,
-								// alignSelf: 'flex-end',
-							}}
-						>
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: isSmallScreen ? 'center' : 'flex-start',
-									padding: '7px 20px',
-									paddingLeft: 10,
-									color: 'white',
-									width: '100%',
-									textAlign: isSmallScreen ? 'center' : 'left',
-								}}
-							>
+							<Spacer y={2}></Spacer>
+							<Grid xs={24} md={24} justify='center'>
 								<div
+									id='meet-bruce'
 									style={{
-										fontStyle: 'italic',
-										fontSize: '15px',
-										fontWeight: 300,
-										color: 'rgba(255,255,255,0.9)',
-										textAlign: isSmallScreen ? 'center' : 'left',
+										cursor: 'pointer',
+										fontSize: 69,
+										color: '#FFFFFF',
+										fontWeight: 800,
+										lineHeight: '1.2em',
+										textAlign,
 									}}
 								>
-									via
+									<span style={{ whiteSpace: 'nowrap' }}>MEET</span>
+									<br />
+									<span style={{ whiteSpace: 'nowrap' }}>BRUCE.</span>
 								</div>
-								<a
-									href='https://1inch.exchange'
-									style={{ cursor: 'pointer' }}
-									target='_blank'
+								<Grid
+									id='hero-description'
+									style={{
+										marginTop: 10,
+										color: 'white',
+										fontWeight: 200,
+										// fontStyle: 'italic',
+										fontSize: 20,
+										textAlign,
+										// alignSelf: 'flex-end',
+									}}
 								>
-									<img
-										style={{
-											display: 'inline-block',
-											float: 'right',
-											width: '70px',
-											color: 'white',
-										}}
-										src='./images/one-inch-logo--light.svg'
-									/>
-								</a>
+									The Embeddable Swap UX that <br></br> packs a punch{' '}
+									<div id='fist' style={{ display: 'inline-block' }}>
+										👊
+									</div>
+								</Grid>
+								<Spacer y={1}></Spacer>
+								<Grid style={{ textAlign }}>
+									<Button
+										onClick={() => scrollToBuilder()}
+										id='get-started-button'
+										color='black'
+										iconRight={<ArrowRight></ArrowRight>}
+									>
+										GET STARTED
+									</Button>
+								</Grid>
+								<Grid.Container
+									xs={24}
+									justify={isSmallScreen ? 'center' : 'flex-start'}
+								></Grid.Container>
+							</Grid>
+						</Grid>
+						<Grid xs={22} md={12} justify='center' alignItems='center'>
+							<div
+								id='hero-swap'
+								style={{
+									position: 'relative',
+									// width: 340,
+									height: 470,
+								}}
+							>
+								<Swap allTokens={props.allTokens}></Swap>
 							</div>
-						</div>
-					</div>
-					<iframe
-						id='widget-html'
-						style={{ border: 'none' }}
-						src={iframeUrl}
-						width={340}
-						height={500}
-					></iframe>
-					{/* <div style={{ width: 400 }}>
-					<TokenSearch></TokenSearch>
-					<Swap></Swap>
-				</div> */}
-				</div>
-				<div>
+						</Grid>
+					</Grid.Container>
+				</Grid.Container>
+				<Grid.Container justify='center'>
 					<div
 						style={{
 							cursor: 'pointer',
 							textAlign: 'center',
 							opacity: '0.5',
-							marginTop: 25,
+							marginTop: '100px',
+						}}
+						onClick={() => {
+							scrollToBuilder();
 						}}
 					>
-						<div style={{ color: 'white' }}>Get Started</div>
 						<div className={'animation_hover'}>
 							<ChevronDown color='white'></ChevronDown>
 						</div>
 					</div>
-				</div>
-				{/* <Card shadow>
-				<Code>{widgetHtml}</Code>
-			</Card> */}
-			</div>
+				</Grid.Container>
+			</Grid.Container>
+
+			<Grid.Container>
+				<div id='widget-builder-area'></div>
+				<WidgetBuilder></WidgetBuilder>
+				{/* <Grid
+					style={{
+						fontStyle: 'italic',
+						fontSize: '15px',
+						fontWeight: 300,
+						color: 'rgba(255,255,255,0.9)',
+						textAlign: isSmallScreen ? 'center' : 'left',
+					}}
+				>
+					via
+					<a
+						href='https://1inch.exchange'
+						style={{ cursor: 'pointer' }}
+						target='_blank'
+					>
+						<img
+							style={{
+								display: 'inline-block',
+								// float: 'right',
+								marginBottom: '-10px',
+								width: '200px',
+								color: 'white',
+							}}
+							src='./images/one-inch-logo--light.svg'
+						/>
+					</a>
+				</Grid> */}
+			</Grid.Container>
+			<Grid.Container direction='column' justify='center' alignItems='center'>
+				<p
+					style={{
+						fontSize: '3rem',
+						color: 'white',
+						textAlign: 'center',
+						fontStyle: 'italic',
+						fontWeight: 100,
+					}}
+				>
+					"there is no weapon more deadly <br></br> than the will"
+				</p>
+				<br />
+				<img width={300} src='./images/bruce-lee-signature.png' alt='' />
+			</Grid.Container>
+			<Spacer y={5}></Spacer>
+			<Grid.Container>
+				<p style={{ color: 'rgba(255,255,255,0.3)' }}>
+					© McCall Alexander, 2021
+				</p>
+			</Grid.Container>
 		</Layout>
 	);
 }
 
-export async function getStaticProps() {
-	return { props: {} };
-}
+export const getStaticProps: GetStaticProps = async (...args) => {
+	return widgetGetStaticProps(...args);
+};

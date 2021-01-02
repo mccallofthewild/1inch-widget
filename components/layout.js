@@ -8,7 +8,8 @@ export const siteTitle = 'BRUCE - DEX Crypto Swaps';
 export default function Layout({ children, home }) {
 	return (
 		<div
-			className={`${styles.container} ${home ? styles.container__home : ''}`}
+			className={`${styles.container}`}
+			style={{ background: home ? 'black' : null }}
 		>
 			<Head>
 				<link rel='icon' href='/favicon.ico' />

@@ -1,8 +1,8 @@
 import { Loading, Spinner } from '@geist-ui/react';
 import { ReactNode } from 'react';
 
-export const LoadingText = (props: { text: ReactNode }) => {
-	return props.text ? (
+export const LoadingText = (props: { text: ReactNode; loading?: boolean }) => {
+	return props.text && !props.loading ? (
 		<>{props.text}</>
 	) : (
 		<span

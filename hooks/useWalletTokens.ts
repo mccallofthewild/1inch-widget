@@ -1,7 +1,6 @@
 import { useWeb3React } from '@web3-react/core';
 import { ethers } from 'ethers';
 import { useEffect, useMemo, useState } from 'react';
-import { OneInchGraph } from '../generated/OneInchGraph';
 import { useAllTokens } from './useAllTokens';
 
 export const useWalletTokens = (provider: ethers.providers.Web3Provider) => {
@@ -24,7 +23,7 @@ export const useWalletTokens = (provider: ethers.providers.Web3Provider) => {
 			.then((logs) => {
 				setState(logs);
 			});
-	}, []);
+	}, [web3.account, provider]);
 
 	return useMemo(() => {
 		const logAddresses = state.map((l) => l.address.toLowerCase()).join('---');
@@ -33,5 +32,5 @@ export const useWalletTokens = (provider: ethers.providers.Web3Provider) => {
 				t.symbol == 'ETH' ||
 				state.find((tx) => logAddresses.includes(t.id.toLowerCase()))
 		);
-	}, [allTokens]);
+	}, [allTokens, state]);
 };

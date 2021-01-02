@@ -15,6 +15,7 @@ type SwapStatus =
 	| 'PREPARING_TX'
 	| 'AWAITING_CONFIRMATION'
 	| 'AWAITING_APPROVAL'
+	| 'AWAITING_APPROVE_TX'
 	| 'SENDING_TX'
 	| 'COMPLETE'
 	| 'ERROR';
@@ -53,7 +54,9 @@ export const useSwap = (
 			// Approve
 			if (fromToken.symbol != 'ETH') {
 				setSwapStatus('AWAITING_APPROVAL');
-				await approve(parsedAmountFromToken, fromToken, provider);
+				const tx = await approve(parsedAmountFromToken, fromToken, provider);
+				setSwapStatus('AWAITING_APPROVE_TX');
+				if (tx) await waitForTx(tx.hash, provider);
 			}
 
 			const swap = await repeatOnFail(
@@ -79,7 +82,7 @@ export const useSwap = (
 
 			setSwapStatus('SENDING_TX');
 			// TEST MODE
-			if (true) {
+			if (false) {
 			} else {
 				// Swap
 				const {
@@ -150,9 +153,8 @@ const approve = async (
 		return;
 	}
 
-	const amountNeeded = parsedAmountFromToken.sub(allowance);
+	// const amountNeeded = parsedAmountFromToken.sub(allowance);
 
-	const tx = await erc20Contract.approve(spenderAddress, amountNeeded);
-
-	await waitForTx(tx.hash, provider);
+	const tx = await erc20Contract.approve(spenderAddress, parsedAmountFromToken);
+	return tx;
 };

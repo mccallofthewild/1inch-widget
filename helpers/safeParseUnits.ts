@@ -5,6 +5,7 @@ export const safeParseUnits = (
 	tokenQuantity: string,
 	fromToken: OneInchGraph.Token
 ) => {
+	if (!tokenQuantity) return ethers.BigNumber.from('0');
 	let [intToSend, decimalsToSend] = tokenQuantity.split('.');
 	if (decimalsToSend && decimalsToSend.length > fromToken.decimals) {
 		decimalsToSend = decimalsToSend.slice(0, fromToken.decimals);

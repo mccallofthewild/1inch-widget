@@ -12,9 +12,15 @@
 	position: relative;
 }
 
+.token_search__header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+
 .token_search_close_button {
 	cursor: pointer;
-	display: flex;
 	justify-content: flex-end;
 }
 
@@ -23,6 +29,9 @@
 	justify-content: space-around;
 	align-items: center;
 	overflow: hidden;
+	padding: 10px;
+	box-shadow: 0px 15px 20px -20px rgba(0, 0, 0, 0.2);
+	border-radius: 10px;
 }
 
 /* .token_search_bar_icon {
@@ -33,6 +42,8 @@
 }
 
 .token_search_bar_input {
+	font-family: monospace;
+	font-weight: 700;
 	width: 100%;
 	composes: input from 'utils.module.css';
 }
@@ -53,14 +64,17 @@
 }
 
 .token_search_results_item {
+	font-family: monospace;
 	font-size: 1rem;
 	padding: 10px 20px;
 	border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
 	cursor: pointer;
-	transition: all 200ms ease;
+	/* transition: all 200ms ease; */
 }
 
 .token_search_results_item:hover {
-	transform: scale(1.02);
-	box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1);
+	/* transform: scale(1.02); */
+	/* box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1); */
+	/* opacity: 0.8; */
+	background: rgba(0, 0, 0, 0.05);
 }

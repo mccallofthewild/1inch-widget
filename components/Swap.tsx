@@ -1,7 +1,7 @@
 import { useWeb3React } from '@web3-react/core';
 import { BigNumber, ethers } from 'ethers';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { OneInchGraph } from '../generated/OneInchGraph';
 import { calc } from '../helpers/calc';
 import { useAllTokens } from '../hooks/useAllTokens';
@@ -31,11 +31,17 @@ import { NoFragmentCyclesRule } from 'graphql';
 import { useWalletTokens } from '../hooks/useWalletTokens';
 import { useTokenBalances } from '../hooks/useTokenBalances';
 import { ArrowDown, RefreshCcw } from '@geist-ui/react-icons';
+import { Store } from '../store/Store';
+import { StringDecoder } from 'string_decoder';
 rateLimitContractsAndOneInch();
-export const Swap = () => {
-	const allTokens = useAllTokens();
+export const Swap = (props: {
+	allTokens?: OneInchGraph.Token[];
+	staticToTokenSymbol?: string;
+}) => {
+	const allTokens = useAllTokens(props.allTokens);
 	const [fromToken, setFromToken] = useState<OneInchGraph.Token>();
 	const [toToken, setToToken] = useState<OneInchGraph.Token>();
+
 	const [quantity, setQuantity] = useState<string>('1');
 	const [output, setOutput] = useState<string>('');
 	const gasPrice = useGasPrice();
@@ -90,6 +96,12 @@ export const Swap = () => {
 		}
 	}, [fromToken, toToken, allTokens]);
 
+	useEffect(() => {
+		if (!props.staticToTokenSymbol) return;
+		let token = allTokens.find((t) => t.symbol == props.staticToTokenSymbol);
+		if (token) setToToken(token);
+	}, [props.staticToTokenSymbol, allTokens]);
+
 	const tokenSearchRef = useRef<HTMLDivElement>();
 	if (swapState.status == 'PREPARING_TX') {
 		return (
@@ -120,7 +132,10 @@ export const Swap = () => {
 			></SwapStageConfirm>
 		);
 	}
-	if (swapState.status == 'AWAITING_APPROVAL') {
+	if (
+		swapState.status == 'AWAITING_APPROVAL' ||
+		swapState.status == 'AWAITING_APPROVE_TX'
+	) {
 		return (
 			<div className={styles.swap_container}>
 				<div className={styles.swap_header}>
@@ -130,7 +145,11 @@ export const Swap = () => {
 							styles.swap_header_item_active,
 						].join(' ')}
 					>
-						APPROVE
+						{swapState.status == 'AWAITING_APPROVAL'
+							? 'APPROVE'
+							: swapState.status == 'AWAITING_APPROVE_TX'
+							? 'APPROVING...'
+							: ''}
 					</div>
 				</div>
 				<Lottie
@@ -222,8 +241,10 @@ export const Swap = () => {
 					SWAP
 				</div> */}
 				<div>
-					{' '}
-					<img height='26.97px' src='./images/bruce.svg' alt='logo' />
+					<a target='_blank' href='/'>
+						{' '}
+						<img height='26.97px' src='./images/bruce.svg' alt='logo' />
+					</a>
 					<div
 						style={{
 							fontSize: '9px',
@@ -245,10 +266,14 @@ export const Swap = () => {
 			</div>
 			<div className={styles.swap_form_container}>
 				<SwapToken
+					hasBalance={!!walletTokens.find((t) => t.id == fromToken?.id)}
 					onClickToChangeToken={() => {
 						setSearchState({
 							isVisible: true,
-							onSelect: (t) => setFromToken(t),
+							onSelect: (t) => {
+								setQuantity('1');
+								setFromToken(t);
+							},
 							filter: (t) => true,
 							// filter: (t) => t.id != toToken.id,
 						});
@@ -309,6 +334,12 @@ export const Swap = () => {
 						style={{
 							marginLeft: '15px',
 							marginTop: '8px',
+							...(props.staticToTokenSymbol
+								? {
+										opacity: 0,
+										pointerEvents: 'none',
+								  }
+								: {}),
 						}}
 						className={styles.swap_form_token_divider_action_icon}
 					>
@@ -317,6 +348,11 @@ export const Swap = () => {
 					</div>
 				</div>
 				<SwapToken
+					isStatic={
+						!!props.staticToTokenSymbol &&
+						toToken?.symbol == props.staticToTokenSymbol
+					}
+					hasBalance={!!walletTokens.find((t) => t.id == toToken?.id)}
 					loading={!output}
 					onClickToChangeToken={() => {
 						setSearchState({
@@ -372,7 +408,6 @@ export const Swap = () => {
 					}}
 					onSelect={(t) => {
 						searchState.onSelect(t);
-						setQuantity('1');
 					}}
 					style={{
 						position: 'absolute',

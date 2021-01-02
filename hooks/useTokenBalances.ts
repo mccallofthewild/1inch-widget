@@ -6,18 +6,19 @@ import { useEffect, useState } from 'react';
 import { web } from 'webpack';
 import { ERC20__factory } from '../generated/contracts';
 import { OneInchGraph } from '../generated/OneInchGraph';
+import { Store } from '../store/Store';
 
-const cache = {};
 export const useTokenBalances = (
 	provider: ethers.providers.Provider,
 	tokens: OneInchGraph.Token[]
 ) => {
 	const web3 = useWeb3React();
-	const [state, setState] = useState<{ [key: string]: string }>({});
+	const store = Store.useContext();
+	const balances = store.state.data.walletsBalances[web3.account] || {};
 	const loadTokenBalance = async (token: OneInchGraph.Token) => {
 		let balance: BigNumber;
-		if (cache[web3.account + token.id]) {
-			return cache[web3.account + token.id];
+		if (balances[token.id]) {
+			return balances[token.id];
 		}
 		if (token.symbol == 'ETH') {
 			balance = await provider.getBalance(web3.account);
@@ -27,25 +28,19 @@ export const useTokenBalances = (
 			);
 		}
 		const rtnBalance = formatUnits(balance, BigNumber.from(token.decimals));
-		cache[web3.account + token.id] = rtnBalance;
+		store.dispatch('SetTokenBalanceForWallet', {
+			tokenContractAddress: token.id,
+			walletAddress: web3.account,
+			formattedBalance: rtnBalance,
+		});
 		return rtnBalance;
 	};
 	useEffect(() => {
 		if (!provider) return;
 		if (!web3.account) return;
-		let tokenBalances = {};
 		tokens.forEach(async (t) => {
-			loadTokenBalance(t)
-				.then(async (b) => {
-					tokenBalances = {
-						...state,
-						...tokenBalances,
-						[t.id]: await loadTokenBalance(t),
-					};
-					setState(tokenBalances);
-				})
-				.catch(console.error);
+			loadTokenBalance(t).catch(console.error);
 		});
 	}, [web3.account, provider, tokens]);
-	return state;
+	return balances || {};
 };

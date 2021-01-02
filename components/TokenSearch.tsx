@@ -5,12 +5,13 @@ import { useAllTokens } from '../hooks/useAllTokens';
 import { useDebounce } from '../hooks/useDebounce';
 import React from 'react';
 import styles from '../styles/tokensearch.module.css';
-import { CheckCircle } from '@geist-ui/react-icons';
+import { CheckCircle, ChevronDown, CreditCard, X } from '@geist-ui/react-icons';
 import { useWalletTokens } from '../hooks/useWalletTokens';
 import { useWeb3React } from '@web3-react/core';
 import { ethers } from 'ethers';
 import { useTokenBalances } from '../hooks/useTokenBalances';
-import { Loading } from '@geist-ui/react';
+import { Loading, Spacer } from '@geist-ui/react';
+import swapStyles from '../styles/swap.module.css';
 // Just load the top 100 tokens then dynamically search for the rest?
 export const TokenSearch = ({
 	onSelect = (t) => {},
@@ -34,6 +35,10 @@ export const TokenSearch = ({
 	);
 
 	useEffect(() => {
+		const walletTokenAddressMerge = walletTokens
+			.map((t) => t.id)
+			.join('-')
+			.toLowerCase();
 		setDisplayedTokens(
 			allTokens
 				.filter(
@@ -45,12 +50,22 @@ export const TokenSearch = ({
 				.sort((tA, tB) => {
 					if (walletTokenBalances[tA.id] < walletTokenBalances[tB.id]) {
 						return -1;
-					}
-					if (walletTokenBalances[tA.id] == walletTokenBalances[tB.id]) {
+					} else if (walletTokenBalances[tA.id] == walletTokenBalances[tB.id]) {
 						return 0;
 					}
+					if (
+						!walletTokenAddressMerge.includes(tA.id.toLowerCase()) &&
+						walletTokenAddressMerge.includes(tB.id.toLowerCase())
+					) {
+						return -1;
+					}
+					if (tA.tradeCount < tB.tradeCount) {
+						return -1;
+					}
+
 					return 1;
 				})
+				.reverse()
 		);
 	}, [allTokens, query, filter, walletTokenBalances, walletTokens]);
 	useEffect(() => {
@@ -58,11 +73,25 @@ export const TokenSearch = ({
 	}, [filter]);
 	return (
 		<div style={style} className={styles.token_search_container}>
-			<div
-				onClick={() => onClose()}
-				className={styles.token_search_close_button}
-			>
-				<CloseIcon></CloseIcon>
+			<div className={styles.token_search__header}>
+				<Spacer x={0.1}></Spacer>
+				<div>
+					<div
+						className={[
+							swapStyles.swap_header_item,
+							swapStyles.swap_header_item_active,
+						].join(' ')}
+					>
+						{'SEARCH ' + allTokens.length + ' TOKENS'}
+					</div>
+					<Spacer y={0.4}></Spacer>
+				</div>
+				<div
+					onClick={() => onClose()}
+					className={styles.token_search_close_button}
+				>
+					<X></X>
+				</div>
 			</div>
 			<div className={styles.token_search_bar_container}>
 				{/* <div className={styles.token_search_bar_icon}>
@@ -71,7 +100,7 @@ export const TokenSearch = ({
 				<input
 					onInput={(e) => setQuery(e.currentTarget.value)}
 					autoFocus={true}
-					placeholder={'Search ' + allTokens.length + ' Tokens'}
+					placeholder={'e.g. ETH, Golem, DAI'}
 					className={styles.token_search_bar_input}
 				></input>
 			</div>
@@ -95,16 +124,34 @@ export const TokenSearch = ({
 						>
 							<div
 								style={{
-									width: '80%',
+									width: '33%',
+									overflow: 'hidden',
+									textOverflow: 'ellipsis',
+									whiteSpace: 'nowrap',
+								}}
+								title={t.symbol}
+							>
+								{t.symbol}
+							</div>
+							{/* <div
+								style={{
+									width: '33%',
 									overflow: 'hidden',
 									textOverflow: 'ellipsis',
 									whiteSpace: 'nowrap',
 								}}
 								title={t.name}
 							>
-								<b>{t.symbol}</b> - {t.name}
+								{t.name}
+							</div> */}
+							<div style={{ width: '33%' }}>
+								{walletTokens.find((to) => to.id == t.id) ? (
+									<small className={swapStyles.swap__input_descriptor_text}>
+										{walletTokenBalances[t.id]?.slice(0, 10)}…
+									</small>
+								) : null}
+								{/* <CreditCard></CreditCard> */}
 							</div>
-							{walletTokenBalances[t.id] ? <CheckCircle></CheckCircle> : null}
 						</div>
 					))
 				)}

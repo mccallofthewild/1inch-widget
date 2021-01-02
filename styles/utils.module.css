@@ -33,10 +33,6 @@
 	box-shadow: 0px 2px 7px rgba(0, 0, 0, 0.05) inset;
 }
 
-.input:invalid {
-	border: 2px solid rgba(255, 0, 0, 1);
-}
-
 .input::placeholder {
 	color: rgba(0, 0, 0, 0.3);
 }
@@ -48,21 +44,27 @@
 
 .button {
 	cursor: pointer;
-	width: 100%;
+	padding: 15px;
+	margin: 5px 0px;
+	width: calc(100% - 30px);
 	border-radius: 10px;
 	background: black;
 	border: none;
 	color: white;
 	/* font-weight: bold; */
-	padding-top: 15px;
-	padding-bottom: 15px;
-	margin: 5px 0px;
 }
 
 .button_outline {
 	background: transparent;
 	color: black;
 	border: 1px solid black;
+}
+
+.button_outline_white {
+	composes: button;
+	composes: button_outline;
+	color: white;
+	border-color: white;
 }
 
 .button:focus {
@@ -75,4 +77,72 @@
 	border-radius: 20px;
 	padding: 20px;
 	background: white;
+}
+
+.animation__slam {
+	animation: slam 0.5s;
+	animation-timing-function: linear;
+}
+
+@keyframes slam {
+	0% {
+		transform: scale(10, 10);
+		opacity: 0;
+	}
+
+	40% {
+		opacity: 0;
+	}
+
+	100% {
+		transform: scale(1, 1);
+		opacity: 1;
+	}
+}
+
+@keyframes rattle {
+	0% {
+		margin-top: 0;
+		margin-left: 0;
+	}
+	10% {
+		margin-top: -5px;
+		margin-left: 0;
+	}
+	20% {
+		margin-top: 0;
+		margin-left: -5px;
+	}
+	30% {
+		margin-top: 5px;
+		margin-left: 0;
+	}
+	40% {
+		margin-top: 0;
+		margin-left: 5px;
+	}
+	50% {
+		margin-top: -2px;
+		margin-left: 0;
+	}
+	60% {
+		margin-top: 0;
+		margin-left: -2px;
+	}
+	70% {
+		margin-top: 2px;
+		margin-left: 0;
+	}
+	80% {
+		margin-top: 0;
+		margin-left: 2px;
+	}
+	90% {
+		margin-top: -1px;
+		margin-left: 0;
+	}
+	100% {
+		margin-top: 0;
+		margin-left: 0;
+	}
 }
