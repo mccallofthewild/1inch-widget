@@ -26,11 +26,12 @@ export const useWalletTokens = (provider: ethers.providers.Web3Provider) => {
 	}, [web3.account, provider]);
 
 	return useMemo(() => {
+		if (!web3.account) return [];
 		const logAddresses = state.map((l) => l.address.toLowerCase()).join('---');
 		return allTokens.filter(
 			(t) =>
 				t.symbol == 'ETH' ||
 				state.find((tx) => logAddresses.includes(t.id.toLowerCase()))
 		);
-	}, [allTokens, state]);
+	}, [allTokens, state, web3.account]);
 };
