@@ -39,7 +39,8 @@ export const SwapToken = (props: {
 		if (
 			props.token?.symbol != 'ETH' ||
 			!props.hasBalance ||
-			!props.walletBalance
+			!props.walletBalance ||
+			!gasPrice
 		)
 			return props.walletBalance || '0';
 		const approxGasUsage = 310400;
