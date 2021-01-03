@@ -40,6 +40,7 @@
 }
 
 .swap_form_container {
+	position: relative;
 	width: 100%;
 	margin-top: 20px;
 }
@@ -69,19 +70,13 @@
 }
 
 .swap_form_token_select_icon {
+	cursor: pointer;
 	width: 100%;
 	display: flex;
 	justify-content: flex-start;
 	align-items: center;
 	/* filter: contrast(150%) hue-rotate(10deg) saturate(110%); */
 	/* width: 15%; */
-}
-
-.swap_form_token_select_icon_image {
-	width: 34px;
-	height: 34px;
-	/* height: 30px; */
-	/* width: 30px; */
 }
 
 .swap_form_token_select_icon_chevron_down {
@@ -154,7 +149,8 @@
 	/* width: 25px;
 	height: 25px; */
 	cursor: pointer;
-	transition: all 250ms ease;
+	transform-origin: center center;
+	/* transition: all 250ms ease; */
 }
 .swap_form_token_divider_action_icon:hover {
 	opacity: 0.5;

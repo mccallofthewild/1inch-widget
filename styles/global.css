@@ -8,6 +8,7 @@ body {
 	font-weight: normal !important;
 	line-height: 1.6;
 	font-size: 18px;
+	overflow-x: hidden;
 }
 
 * {

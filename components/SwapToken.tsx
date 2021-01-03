@@ -1,7 +1,7 @@
 import { Button, Loading, Spacer, Spinner, Tooltip } from '@geist-ui/react';
 import { BigNumber } from 'ethers';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { OneInchGraph } from '../generated/OneInchGraph';
 import { getGradients } from '../helpers/getGradients';
 import styles from '../styles/swap.module.css';
@@ -12,10 +12,11 @@ import { Check } from '@geist-ui/react-icons';
 import { getTokenImageUrl } from '../helpers/getTokenImageUrl';
 import { Store } from '../store/Store';
 import { LoadingText } from './LoadingText';
+import { Touchable } from './Touchable';
+import anime from 'animejs';
+import { TokenAvatar } from './TokenAvatar';
+import { useGasPrice } from '../hooks/useGasPrice';
 
-const loadedImages: {
-	[key: string]: boolean;
-} = {};
 export const SwapToken = (props: {
 	token: OneInchGraph.Token;
 	quantity: string;
@@ -28,25 +29,64 @@ export const SwapToken = (props: {
 	isStatic?: boolean;
 }) => {
 	const store = Store.useContext();
+
 	const [localQuantity, setLocalQuantity, immediateLocalQuantity] = useDebounce<
 		string | number
 	>(props.quantity, 450);
-	const [imageLoadError, setImageLoadError] = useState(null);
-	const [imageLoadedState, setImageLoaded] = useState(false);
-	const [imageUrl, setImageUrl] = useState('');
-	let imageLoaded = imageLoadedState || loadedImages[imageUrl];
+
+	const gasPrice = useGasPrice();
+	const maxSpend = useMemo(() => {
+		if (
+			props.token?.symbol != 'ETH' ||
+			!props.hasBalance ||
+			!props.walletBalance
+		)
+			return props.walletBalance || '0';
+		const approxGasUsage = 310400;
+		return formatUnits(
+			parseUnits(props.walletBalance, 'ether').sub(
+				parseUnits(gasPrice, 'gwei').mul(BigNumber.from(approxGasUsage))
+			),
+			'ether'
+		);
+	}, [gasPrice, props.token?.symbol, props.walletBalance]);
+
 	useEffect(() => {
 		if (props.setQuantity) props.setQuantity(localQuantity);
 	}, [localQuantity]);
 	useEffect(() => {
 		if (props.quantity != localQuantity) setLocalQuantity(props.quantity);
 	}, [props.quantity]);
+
+	const inputRef = useRef<HTMLInputElement>();
+
+	const [activeAnimations, setActiveAnimations] = useState({
+		loading: false,
+		updating: false,
+	});
+
 	useEffect(() => {
-		setImageLoadError(null);
-		setImageLoaded(false);
-		setImageUrl(props.token ? getTokenImageUrl(props.token) : null);
-	}, [props.token]);
-	const gradient = useMemo(() => getGradients().random(), [props.token]);
+		if (!inputRef.current || inputRef.current == document.activeElement) return;
+		if (!inputRef.current.value || inputRef.current.value == props.quantity)
+			return;
+		setActiveAnimations({
+			...activeAnimations,
+			updating: true,
+		});
+		anime({
+			targets: inputRef.current,
+			value: [+inputRef.current.value, +(immediateLocalQuantity + '').trim()],
+			duration: 450,
+			easing: 'linear',
+			elasticity: 0,
+			autoplay: true,
+		}).finished.then(() => {
+			setActiveAnimations({
+				...activeAnimations,
+				updating: false,
+			});
+		});
+	}, [props.quantity, immediateLocalQuantity]);
 	return (
 		<div
 			id={'token--' + props.token?.symbol}
@@ -57,70 +97,15 @@ export const SwapToken = (props: {
 			</div>
 			<div className={styles.swap_form_token_select_container}>
 				<div className={styles.swap_form_token_select}>
-					<div
+					<Touchable
+						style={{ cursor: 'pointer' }}
 						onClick={() => {
 							if (props.isStatic) return;
 							props.onClickToChangeToken();
 						}}
 						className={styles.swap_form_token_select_icon}
 					>
-						{props.token ? (
-							<>
-								<img
-									onLoadStart={() => {
-										setImageLoadError(null);
-										setImageLoaded(false);
-									}}
-									style={{
-										...(!imageLoaded
-											? {
-													position: 'absolute',
-													opacity: 0,
-											  }
-											: {}),
-										display: !imageLoaded ? 'none' : 'block',
-									}}
-									src={
-										store.state.ui.preloadedDataImageUris[imageUrl] || imageUrl
-									}
-									onLoad={(e) => {
-										setImageLoaded(true);
-										loadedImages[imageUrl] = true;
-									}}
-									onError={(e) => setImageLoadError('error')}
-									alt={props.token.symbol}
-									className={styles.swap_form_token_select_icon_image}
-								/>
-								{!imageLoaded && !imageLoadError ? (
-									<Spinner
-										className={styles.swap_form_token_select_icon_image}
-									></Spinner>
-								) : null}
-								{imageLoadError ? (
-									<div>
-										<div
-											style={{
-												transition: 'all 1s ease',
-												background: gradient,
-												borderRadius: '100%',
-												display: 'flex',
-												justifyContent: 'center',
-												alignItems: 'center',
-											}}
-											className={styles.swap_form_token_select_icon_image}
-										>
-											<b style={{ color: 'white' }}>
-												{props.token.symbol.slice(0, 1)}
-											</b>
-										</div>
-									</div>
-								) : null}
-							</>
-						) : (
-							<Spinner
-								className={styles.swap_form_token_select_icon_image}
-							></Spinner>
-						)}
+						<TokenAvatar size={34} token={props.token}></TokenAvatar>
 						<div
 							style={{
 								opacity: props.isStatic ? 0 : 1,
@@ -129,18 +114,20 @@ export const SwapToken = (props: {
 						>
 							<DropDownIcon></DropDownIcon>
 						</div>
-					</div>
+					</Touchable>
 				</div>
 				<div className={styles.swap_form_token_amount_input_container}>
 					<input
+						ref={inputRef}
+						value={immediateLocalQuantity || ''}
 						required={!props.readonly}
 						autoFocus={!props.readonly}
 						min='0'
-						max={props.walletBalance || Infinity}
+						max={maxSpend || Infinity}
 						readOnly={props.readonly}
-						value={immediateLocalQuantity || ''}
 						step={'any'}
 						onChange={(e) => {
+							// if (Object.values(activeAnimations).some((v) => v)) return;
 							let val = e.currentTarget.value;
 							let isValid = false;
 							try {
@@ -163,48 +150,51 @@ export const SwapToken = (props: {
 						placeholder={props.loading ? 'loading...' : '1.32009'}
 						className={styles.swap_form_token_amount_input}
 					></input>
-					{!props.readonly ? (
-						<div
-							style={{
-								marginBottom: '-1em',
-								textAlign: 'center',
-								opacity: props.hasBalance ? 1 : 0,
-								...(props.hasBalance &&
-								props.walletBalance < immediateLocalQuantity
-									? { color: 'red' }
-									: {}),
-							}}
-							className={styles.swap__input_descriptor_text}
-						>
-							/{' '}
-							<LoadingText
-								loading={!props.walletBalance && props.hasBalance}
-								text={
-									<span>
-										{props.walletBalance?.slice(0, 10)}… (
-										{props.walletBalance == immediateLocalQuantity ? (
-											<span
-												style={{
-													transform: 'translateY(4px)',
-													display: 'inline-block',
-												}}
-											>
-												<Check size={15}></Check>
-											</span>
-										) : (
-											<u
-												onClick={() => setLocalQuantity(props.walletBalance)}
-												style={{ cursor: 'pointer' }}
-											>
-												MAX
-											</u>
-										)}
-										)
-									</span>
-								}
-							></LoadingText>
-						</div>
-					) : null}
+
+					<div
+						style={{
+							opacity: props.readonly || !props.hasBalance ? 0 : 1,
+							pointerEvents: props.readonly ? 'none' : 'all',
+							marginBottom: '-1em',
+							textAlign: 'center',
+							...(props.hasBalance &&
+							props.walletBalance &&
+							maxSpend < immediateLocalQuantity
+								? { color: 'red' }
+								: {}),
+						}}
+						className={styles.swap__input_descriptor_text}
+					>
+						/{' '}
+						<LoadingText
+							loading={props.walletBalance == undefined && props.hasBalance}
+							text={
+								<span>
+									{maxSpend?.slice(0, 10)}… (
+									{maxSpend == immediateLocalQuantity ? (
+										<span
+											style={{
+												transform: 'translateY(4px)',
+												display: 'inline-block',
+												height: 13,
+												overflow: 'hidden',
+											}}
+										>
+											<Check size={13}></Check>
+										</span>
+									) : (
+										<u
+											onClick={() => setLocalQuantity(maxSpend)}
+											style={{ cursor: 'pointer', height: 15 }}
+										>
+											MAX
+										</u>
+									)}
+									)
+								</span>
+							}
+						></LoadingText>
+					</div>
 				</div>
 				<div className={styles.swap_form_token_amount_in_fiat_container}>
 					<div className={styles.swap_form_token_amount_in_fiat}>

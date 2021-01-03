@@ -20,8 +20,10 @@ import { Store } from '../store/Store';
 import { animateHomePageText } from '../helpers/animateHomePageText';
 import { WidgetBuilder } from '../components/WidgetBuilder';
 import styles from './index.module.css';
+import { Touchable } from '../components/Touchable';
 export default function Home(props: WidgetProps) {
 	const store = Store.useContext();
+
 	useEffect(() => {
 		if (props.preloadedTokenImageDataUris) {
 			for (let imageUrl in props.preloadedTokenImageDataUris) {
@@ -31,9 +33,13 @@ export default function Home(props: WidgetProps) {
 				});
 			}
 		}
-	}, [props.preloadedTokenImageDataUris]);
+		if (props.allTokens) {
+			store.dispatch('SetAllTokens', props.allTokens);
+		}
+	}, []);
 
-	useLayoutEffect(() => {
+	useEffect(() => {
+		if (!process.browser) return;
 		animateHomePageText();
 	}, []);
 
@@ -145,7 +151,7 @@ export default function Home(props: WidgetProps) {
 					</Grid.Container>
 				</Grid.Container>
 				<Grid.Container justify='center'>
-					<div
+					<Touchable
 						style={{
 							cursor: 'pointer',
 							textAlign: 'center',
@@ -159,7 +165,7 @@ export default function Home(props: WidgetProps) {
 						<div className={'animation_hover'}>
 							<ChevronDown color='white'></ChevronDown>
 						</div>
-					</div>
+					</Touchable>
 				</Grid.Container>
 			</Grid.Container>
 

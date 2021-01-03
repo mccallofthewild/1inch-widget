@@ -76,9 +76,16 @@ export const useSwap = (
 			setData(swap);
 
 			setSwapStatus('AWAITING_CONFIRMATION');
+			let denied = false;
 			await new Promise((resolve, reject) => {
 				setConfirmState({ confirm: resolve, deny: reject });
+			}).catch((e) => {
+				denied = true;
 			});
+			if (denied) {
+				reset();
+				return;
+			}
 
 			setSwapStatus('SENDING_TX');
 			// TEST MODE

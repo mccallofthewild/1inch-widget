@@ -10,6 +10,8 @@
 	composes: card from 'utils.module.css';
 	background: white;
 	position: relative;
+	display: block;
+	overflow: hidden;
 }
 
 .token_search__header {
@@ -20,6 +22,13 @@
 }
 
 .token_search_close_button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transform: translateY(-6px);
+	padding: 2px 3px;
+	border-radius: 10000px;
+	background: rgba(0, 0, 0, 0.05);
 	cursor: pointer;
 	justify-content: flex-end;
 }

@@ -1,4 +1,4 @@
-import { CSSProperties, LegacyRef, useEffect, useState } from 'react';
+import { CSSProperties, LegacyRef, useEffect, useRef, useState } from 'react';
 import { OneInchApi } from '../generated/OneInchApi';
 import { OneInchGraph } from '../generated/OneInchGraph';
 import { useAllTokens } from '../hooks/useAllTokens';
@@ -12,6 +12,13 @@ import { ethers } from 'ethers';
 import { useTokenBalances } from '../hooks/useTokenBalances';
 import { Loading, Spacer } from '@geist-ui/react';
 import swapStyles from '../styles/swap.module.css';
+import animStyles from '../styles/animations.module.css';
+import sort from 'fast-sort';
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
+import { Touchable } from './Touchable';
+import { getTokenImageUrl } from '../helpers/getTokenImageUrl';
+import { TokenAvatar } from './TokenAvatar';
+
 // Just load the top 100 tokens then dynamically search for the rest?
 export const TokenSearch = ({
 	onSelect = (t) => {},
@@ -35,41 +42,39 @@ export const TokenSearch = ({
 	);
 
 	useEffect(() => {
+		console.log('reiterating token search');
 		const walletTokenAddressMerge = walletTokens
 			.map((t) => t.id)
 			.join('-')
 			.toLowerCase();
-		setDisplayedTokens(
-			allTokens
-				.filter(
-					(t) =>
-						(t.symbol + ' ' + t.name)
-							.toLowerCase()
-							.includes(query.toLowerCase()) && filter(t)
-				)
-				.sort((tA, tB) => {
-					if (walletTokenBalances[tA.id] < walletTokenBalances[tB.id]) {
-						return -1;
-					} else if (walletTokenBalances[tA.id] == walletTokenBalances[tB.id]) {
-						return 0;
-					}
-					if (
-						!walletTokenAddressMerge.includes(tA.id.toLowerCase()) &&
-						walletTokenAddressMerge.includes(tB.id.toLowerCase())
-					) {
-						return -1;
-					}
-					if (tA.tradeCount < tB.tradeCount) {
-						return -1;
-					}
-
-					return 1;
-				})
-				.reverse()
+		const searchResults = allTokens.filter((t) =>
+			(t.symbol + ' ' + t.name).toLowerCase().includes(query.toLowerCase())
 		);
-	}, [allTokens, query, filter, walletTokenBalances, walletTokens]);
+		const sorted = sort([...searchResults]).asc([
+			(t) => +walletTokenBalances[t.id] * 100000,
+			(t) => (walletTokenAddressMerge.includes(t.id.toLowerCase()) ? 100 : 0),
+			(t) => t.symbol,
+		]);
+		setDisplayedTokens(sorted);
+	}, [
+		allTokens.length,
+		query,
+		Object.values(walletTokenBalances).length,
+		walletTokens.length,
+	]);
+
+	const scrollEl = useRef<HTMLDivElement>();
+	const tokenSearchResultHeight = 40;
+	const infiniteScroll = useInfiniteScroll(
+		displayedTokens,
+		tokenSearchResultHeight,
+		scrollEl.current
+	);
+
 	useEffect(() => {
-		setQuery('');
+		if (query != '') {
+			setQuery('');
+		}
 	}, [filter]);
 	return (
 		<div style={style} className={styles.token_search_container}>
@@ -86,12 +91,18 @@ export const TokenSearch = ({
 					</div>
 					<Spacer y={0.4}></Spacer>
 				</div>
-				<div
-					onClick={() => onClose()}
+				<Touchable
+					style={{ cursor: 'pointer' }}
+					onClick={() => {
+						onClose();
+						if (scrollEl.current) {
+							scrollEl.current.scrollTop = 0;
+						}
+					}}
 					className={styles.token_search_close_button}
 				>
 					<X></X>
-				</div>
+				</Touchable>
 			</div>
 			<div className={styles.token_search_bar_container}>
 				{/* <div className={styles.token_search_bar_icon}>
@@ -99,41 +110,56 @@ export const TokenSearch = ({
 				</div> */}
 				<input
 					onInput={(e) => setQuery(e.currentTarget.value)}
-					autoFocus={true}
+					// autoFocus={true}
 					placeholder={'e.g. ETH, Golem, DAI'}
 					className={styles.token_search_bar_input}
 				></input>
 			</div>
-			<div className={styles.token_search_results_container}>
-				{displayedTokens.length == 0 ? (
-					<Loading></Loading>
-				) : (
-					displayedTokens.map((t) => (
+			<div ref={scrollEl} className={styles.token_search_results_container}>
+				<div style={{ height: infiniteScroll.padTop }}></div>
+				{infiniteScroll.visibleItems.map((t, i) => (
+					<div
+						key={t.symbol}
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							height: tokenSearchResultHeight,
+							cursor: 'pointer',
+						}}
+						onClick={() => {
+							onSelect(t);
+							onClose();
+							setQuery('');
+							if (scrollEl.current) {
+								scrollEl.current.scrollTop = 0;
+							}
+						}}
+						className={styles.token_search_results_item}
+					>
 						<div
 							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
+								width: '10%',
+								overflow: 'hidden',
+								textOverflow: 'ellipsis',
+								whiteSpace: 'nowrap',
 							}}
-							onClick={() => {
-								onSelect(t);
-								onClose();
-							}}
-							key={t.symbol}
-							className={styles.token_search_results_item}
+							title={t.symbol}
 						>
-							<div
-								style={{
-									width: '33%',
-									overflow: 'hidden',
-									textOverflow: 'ellipsis',
-									whiteSpace: 'nowrap',
-								}}
-								title={t.symbol}
-							>
-								{t.symbol}
-							</div>
-							{/* <div
+							<TokenAvatar token={t} size={15}></TokenAvatar>
+						</div>
+						<div
+							style={{
+								width: '50%',
+								overflow: 'hidden',
+								textOverflow: 'ellipsis',
+								whiteSpace: 'nowrap',
+							}}
+							title={t.symbol}
+						>
+							{t.symbol}
+						</div>
+						{/* <div
 								style={{
 									width: '33%',
 									overflow: 'hidden',
@@ -144,18 +170,17 @@ export const TokenSearch = ({
 							>
 								{t.name}
 							</div> */}
-							<div style={{ width: '33%' }}>
-								{walletTokens.find((to) => to.id == t.id) ? (
-									<small className={swapStyles.swap__input_descriptor_text}>
-										{walletTokenBalances[t.id]?.slice(0, 10)}…
-									</small>
-								) : null}
-								{/* <CreditCard></CreditCard> */}
-							</div>
+						<div style={{ width: '33%' }}>
+							{walletTokens.find((to) => to.id == t.id) ? (
+								<small className={swapStyles.swap__input_descriptor_text}>
+									{walletTokenBalances[t.id]?.slice(0, 10)}…
+								</small>
+							) : null}
+							{/* <CreditCard></CreditCard> */}
 						</div>
-					))
-				)}
-				<div style={{ height: '100px' }}></div>
+					</div>
+				))}
+				<div style={{ height: infiniteScroll.padBottom }}></div>
 			</div>
 			<div className={styles.token_search_results_container_overlay}></div>
 		</div>

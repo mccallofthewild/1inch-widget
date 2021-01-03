@@ -40,6 +40,7 @@ export async function replaceTransition(
 		translateX: (end.left - start.left) / scaleX,
 		duration: 550,
 	}).finished;
+
 	// Reveal the actual element and hide the animated element
 	toEl.style.opacity = '1';
 	// fromEl.style.opacity = '0';

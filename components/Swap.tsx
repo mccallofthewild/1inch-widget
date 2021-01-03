@@ -33,6 +33,9 @@ import { useTokenBalances } from '../hooks/useTokenBalances';
 import { ArrowDown, RefreshCcw } from '@geist-ui/react-icons';
 import { Store } from '../store/Store';
 import { StringDecoder } from 'string_decoder';
+import { Touchable } from '../components/Touchable';
+import { useNextTick } from '../hooks/useNextTick';
+
 rateLimitContractsAndOneInch();
 export const Swap = (props: {
 	allTokens?: OneInchGraph.Token[];
@@ -57,6 +60,10 @@ export const Swap = (props: {
 	const walletTokens = useWalletTokens(provider);
 	const walletTokenBalances = useTokenBalances(provider, walletTokens);
 	const [toasts, setToast] = useToasts();
+	const refreshIconRef = useRef<HTMLDivElement>();
+	const arrowIconRef = useRef<HTMLDivElement>();
+	const dividerRef = useRef<HTMLDivElement>();
+	const nextTick = useNextTick();
 
 	const activateWeb3 = async () => {
 		try {
@@ -233,8 +240,9 @@ export const Swap = (props: {
 			}}
 			className={styles.swap_container}
 		>
-			<div className={styles.swap_header}>
-				{/* <div
+			<div style={{ height: '100%', width: '100%', position: 'relative' }}>
+				<div className={styles.swap_header}>
+					{/* <div
 					className={[
 						styles.swap_header_item,
 						styles.swap_header_item_active,
@@ -242,162 +250,196 @@ export const Swap = (props: {
 				>
 					SWAP
 				</div> */}
-				<div>
-					<a target='_blank' href='/'>
-						{' '}
-						<img height='26.97px' src='./images/bruce.svg' alt='logo' />
-					</a>
-					<div
-						style={{
-							fontSize: '9px',
-							color: '#979797',
-							textAlign: 'center',
-						}}
-					>
-						via{' '}
-						<a
-							style={{ color: '#979797' }}
-							target='_blank'
-							href='https://1inch.exchange'
-						>
-							1inch.exchange
+					<div>
+						<a target='_blank' href='/'>
+							{' '}
+							<img height='26.97px' src='./images/bruce.svg' alt='logo' />
 						</a>
+						<div
+							style={{
+								fontSize: '9px',
+								color: '#979797',
+								textAlign: 'center',
+							}}
+						>
+							via{' '}
+							<a
+								style={{ color: '#979797' }}
+								target='_blank'
+								href='https://1inch.exchange'
+							>
+								1inch.exchange
+							</a>
+						</div>
 					</div>
+					{/* <div className={styles.swap_header_item}>INFO</div> */}
 				</div>
-				{/* <div className={styles.swap_header_item}>INFO</div> */}
-			</div>
-			<div className={styles.swap_form_container}>
-				<SwapToken
-					hasBalance={!!walletTokens.find((t) => t.id == fromToken?.id)}
-					onClickToChangeToken={() => {
-						setSearchState({
-							isVisible: true,
-							onSelect: (t) => {
-								setQuantity('1');
-								setFromToken(t);
-							},
-							filter: (t) => true,
-							// filter: (t) => t.id != toToken.id,
-						});
-					}}
-					quantity={quantity}
-					setQuantity={setQuantity}
-					token={fromToken}
-					walletBalance={walletTokenBalances[fromToken?.id]}
-				></SwapToken>
-				<div className={styles.swap_form_token_divider_container}>
-					<div
-						style={{ paddingTop: 5, marginRight: '10px', marginLeft: '7px' }}
-						className={styles.swap_form_token_divider_action_icon}
-					>
-						<ArrowDown size={22} color={'rgba(0, 0, 0, 0.25)'}></ArrowDown>
-					</div>
-					{/* <OneInchLogo></OneInchLogo> */}
-					<div className={styles.swap_form_token_divider}></div>
-					<div
-						onClick={async () => {
-							if (!(toToken && fromToken) || isAnimatingTokenSwitch) return;
-							const fromTokenEl = document.getElementById(
-								'token--' + fromToken.symbol
-							);
-							const toTokenEl = document.getElementById(
-								'token--' + toToken.symbol
-							);
-							setOutput('');
-							isAnimatingTokenSwitch = true;
-							await Promise.all([
-								replaceTransition(fromTokenEl, toTokenEl),
-								replaceTransition(toTokenEl, fromTokenEl),
-							]);
-							isAnimatingTokenSwitch = false;
-							setFromToken(toToken);
-							setToToken(fromToken);
-							if (quote) {
-								try {
-									formatUnits(
-										BigNumber.from(quote.toTokenAmount),
-										BigNumber.from(quote.toToken.decimals)
-									);
-									setQuantity(
-										(+formatUnits(
+				<div className={styles.swap_form_container}>
+					<SwapToken
+						hasBalance={!!walletTokens.find((t) => t.id == fromToken?.id)}
+						onClickToChangeToken={() => {
+							setSearchState({
+								isVisible: true,
+								onSelect: (t) => {
+									setQuantity('1');
+									setFromToken(t);
+								},
+								filter: (t) => true,
+								// filter: (t) => t.id != toToken.id,
+							});
+						}}
+						quantity={quantity}
+						setQuantity={setQuantity}
+						token={fromToken}
+						walletBalance={walletTokenBalances[fromToken?.id]}
+					></SwapToken>
+					<div className={styles.swap_form_token_divider_container}>
+						<div
+							style={{ paddingTop: 5, marginRight: '10px', marginLeft: '7px' }}
+							className={styles.swap_form_token_divider_action_icon}
+							ref={arrowIconRef}
+						>
+							<ArrowDown size={22} color={'rgba(0, 0, 0, 0.25)'}></ArrowDown>
+						</div>
+						{/* <OneInchLogo></OneInchLogo> */}
+						<div
+							ref={dividerRef}
+							className={styles.swap_form_token_divider}
+						></div>
+						<div
+							onClick={async () => {
+								if (!(toToken && fromToken) || isAnimatingTokenSwitch) return;
+								const fromTokenEl = document.getElementById(
+									'token--' + fromToken.symbol
+								);
+								const toTokenEl = document.getElementById(
+									'token--' + toToken.symbol
+								);
+								isAnimatingTokenSwitch = true;
+
+								const rotateIconAnim = anime({
+									targets: refreshIconRef.current.querySelector('svg'),
+									rotate: ['360deg', '-3600deg'],
+									scale: [1, 0.8, 0.1, 1.2, 1],
+									duration: 500,
+									easing: 'easeInOutSine',
+								}).play();
+								const arrowIconAnim = anime({
+									targets: arrowIconRef.current.querySelector('svg'),
+									rotate: ['0deg', '-360deg'],
+									duration: 500,
+									easing: 'easeInOutSine',
+								}).play();
+								anime.set(dividerRef.current, {
+									transformOrigin: 'center center',
+								});
+								anime({
+									targets: dividerRef.current,
+									scale: [1, 0.2, 1],
+									duration: 700,
+									easing: 'easeOutSine',
+								}).play();
+								console.log(dividerRef.current, 'dividerref');
+								await Promise.all([
+									replaceTransition(fromTokenEl, toTokenEl),
+									replaceTransition(toTokenEl, fromTokenEl),
+								]);
+								setFromToken(toToken);
+								setToToken(fromToken);
+								setOutput('');
+								isAnimatingTokenSwitch = false;
+								if (quote) {
+									try {
+										if (quote.toToken.symbol != toToken.symbol) {
+											throw 'wrong token. new output not loaded yet. set to default';
+										}
+										formatUnits(
 											BigNumber.from(quote.toTokenAmount),
 											BigNumber.from(quote.toToken.decimals)
-										)).toPrecision(quote.fromToken.decimals)
-									);
-									// formatUnits(BigNumber.from(quote.fromTokenAmount), BigNumber.from(quote.fromToken.decimals))
-									// setQuantity(
-									// 	formatUnits(parseUnits(output, fromToken.))
-									// );
-								} catch (e) {
-									setQuantity('1');
+										);
+										setQuantity(
+											(+formatUnits(
+												BigNumber.from(quote.toTokenAmount),
+												BigNumber.from(quote.toToken.decimals)
+											)).toPrecision(quote.fromToken.decimals)
+										);
+										// formatUnits(BigNumber.from(quote.fromTokenAmount), BigNumber.from(quote.fromToken.decimals))
+										// setQuantity(
+										// 	formatUnits(parseUnits(output, fromToken.))
+										// );
+									} catch (e) {
+										setQuantity('1');
+									}
 								}
-							}
-						}}
-						style={{
-							marginLeft: '15px',
-							marginTop: '8px',
-							...(props.staticToTokenSymbol
-								? {
-										opacity: 0,
-										pointerEvents: 'none',
-								  }
-								: {}),
-						}}
-						className={styles.swap_form_token_divider_action_icon}
-					>
-						{/* Refresh Icon */}
-						<RefreshCcw size={20}></RefreshCcw>
-					</div>
-				</div>
-				<SwapToken
-					isStatic={
-						!!props.staticToTokenSymbol &&
-						toToken?.symbol == props.staticToTokenSymbol
-					}
-					hasBalance={!!walletTokens.find((t) => t.id == toToken?.id)}
-					loading={!output}
-					onClickToChangeToken={() => {
-						setSearchState({
-							isVisible: true,
-							onSelect: (t) => {
-								console.log(t);
-								setToToken(t);
-							},
-							filter: (t) => t.id != fromToken.id,
-						});
-					}}
-					quantity={output}
-					token={toToken}
-					readonly={true}
-				></SwapToken>
-				<div className={styles.swap_form_token_dex_info_container}>
-					<div className={styles.swap_form_token_dex_info_title}>
-						Spread across DEXes
-					</div>
-					<div className={styles.swap_form_token_dex_info_toggle}>
-						<div className={styles.swap_form_token_dex_info_toggle_action_text}>
-							<LoadingText text={quote?.protocols.length}></LoadingText>{' '}
-							Selected
+							}}
+							style={{
+								cursor: 'pointer',
+								marginLeft: '15px',
+								marginTop: '8px',
+								...(props.staticToTokenSymbol
+									? {
+											opacity: 0,
+											pointerEvents: 'none',
+									  }
+									: {}),
+							}}
+							className={styles.swap_form_token_divider_action_icon}
+							ref={refreshIconRef}
+						>
+							{/* Refresh Icon */}
+							<RefreshCcw size={20}></RefreshCcw>
 						</div>
-						{/* <DropDownIcon></DropDownIcon> */}
+					</div>
+					<SwapToken
+						isStatic={
+							!!props.staticToTokenSymbol &&
+							toToken?.symbol == props.staticToTokenSymbol
+						}
+						hasBalance={!!walletTokens.find((t) => t.id == toToken?.id)}
+						loading={!output}
+						onClickToChangeToken={() => {
+							setSearchState({
+								isVisible: true,
+								onSelect: (t) => {
+									console.log(t);
+									setToToken(t);
+								},
+								filter: (t) => t.id != fromToken.id,
+							});
+						}}
+						quantity={output}
+						token={toToken}
+						readonly={true}
+					></SwapToken>
+					<div className={styles.swap_form_token_dex_info_container}>
+						<div className={styles.swap_form_token_dex_info_title}>
+							Spread across DEXes
+						</div>
+						<div className={styles.swap_form_token_dex_info_toggle}>
+							<div
+								className={styles.swap_form_token_dex_info_toggle_action_text}
+							>
+								<LoadingText text={quote?.protocols.length}></LoadingText>{' '}
+								Selected
+							</div>
+							{/* <DropDownIcon></DropDownIcon> */}
+						</div>
+					</div>
+
+					<button
+						onClick={() => {
+							if (!web3.account) activateWeb3();
+						}}
+						type='submit'
+						className={styles.swap_form_submit_button}
+					>
+						{web3.account ? 'Swap Tokens' : 'Connect Wallet'}
+					</button>
+					<div className={styles.swap_form_meta_container}>
+						<div>Max price slippage: 1%</div>
+						<div>Gas price: {gasPrice} GWEI</div>
 					</div>
 				</div>
-
-				<button
-					onClick={() => {
-						if (!web3.account) activateWeb3();
-					}}
-					type='submit'
-					className={styles.swap_form_submit_button}
-				>
-					{web3.account ? 'Swap Tokens' : 'Connect Wallet'}
-				</button>
-				<div className={styles.swap_form_meta_container}>
-					<div>Max price slippage: 1%</div>
-					<div>Gas price: {gasPrice} GWEI</div>
-				</div>
-			</div>
-			{searchState.isVisible ? (
 				<TokenSearch
 					provider={provider}
 					filter={searchState.filter}
@@ -412,15 +454,20 @@ export const Swap = (props: {
 						searchState.onSelect(t);
 					}}
 					style={{
+						display: searchState.isVisible ? '' : 'none',
 						position: 'absolute',
 						margin: 0,
 						top: 0,
 						bottom: 0,
 						left: 0,
 						right: 0,
+						height: '100%',
+						width: '100%',
+						zIndex: 10,
+						overflow: 'hidden',
 					}}
 				></TokenSearch>
-			) : null}
+			</div>
 		</form>
 	);
 };

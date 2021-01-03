@@ -12,6 +12,11 @@ export type WidgetProps = {
 	preloadedTokenImageDataUris?: Record<string, string>;
 };
 const widget = (props: WidgetProps) => {
+	if (process.browser) {
+		// injects parent window's web3 into iframe. Required for mobile browsers
+		// @ts-ignore
+		window.ethereum = window.ethereum || parent.window.ethereum;
+	}
 	const router = useRouter();
 	const store = Store.useContext();
 	useEffect(() => {
@@ -23,7 +28,10 @@ const widget = (props: WidgetProps) => {
 				});
 			}
 		}
-	}, [props.preloadedTokenImageDataUris]);
+		if (props.allTokens) {
+			store.dispatch('SetAllTokens', props.allTokens);
+		}
+	}, []);
 	let staticToTokenSymbol = router.query.toToken;
 	return (
 		<Swap

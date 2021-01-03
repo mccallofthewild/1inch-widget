@@ -9,6 +9,7 @@ import {
 	Spacer,
 	Spinner,
 	Text,
+	useBodyScroll,
 	useClipboard,
 	useToasts,
 } from '@geist-ui/react';
@@ -26,7 +27,9 @@ export const WidgetBuilder = () => {
 	const widgetRef = useRef<HTMLIFrameElement>();
 	const [state, setState] = useState<{
 		toTokenSymbol: string;
-	}>({ toTokenSymbol: null });
+		shouldRenderIframe: boolean;
+	}>({ toTokenSymbol: null, shouldRenderIframe: false });
+	const scrollTargetRef = useRef();
 
 	useEffect(() => {
 		setIframeUrl(
@@ -42,6 +45,21 @@ export const WidgetBuilder = () => {
 			setWidgetHtml(html);
 		}
 	}, [iframeUrl]);
+
+	useEffect(() => {
+		const listener = (e) => {
+			if (!scrollTargetRef.current) return;
+			const shouldRenderIframe = isElementInViewport(scrollTargetRef.current);
+			if (shouldRenderIframe) {
+				setState({
+					...state,
+					shouldRenderIframe,
+				});
+				window.document.removeEventListener('scroll', listener);
+			}
+		};
+		window.document.addEventListener('scroll', listener);
+	}, [!!scrollTargetRef.current]);
 
 	return (
 		<Grid.Container xs={24} justify='space-around'>
@@ -109,6 +127,7 @@ export const WidgetBuilder = () => {
 						style={{ backgroundColor: 'white', width: '90%' }}
 					>
 						<div
+							ref={scrollTargetRef}
 							style={{
 								display: 'flex',
 								justifyContent: 'center',
@@ -120,13 +139,24 @@ export const WidgetBuilder = () => {
 								padding: '10px',
 							}}
 						>
-							<iframe
-								ref={widgetRef}
-								style={{ border: 'none' }}
-								src={iframeUrl}
-								width={340}
-								height={470}
-							></iframe>
+							{state.shouldRenderIframe ? (
+								<iframe
+									ref={widgetRef}
+									style={{ border: 'none' }}
+									src={iframeUrl}
+									width={340}
+									height={470}
+								></iframe>
+							) : (
+								<div
+									style={{
+										width: 340,
+										height: 470,
+										background: 'white',
+										filter: 'blur(10px)',
+									}}
+								></div>
+							)}
 						</div>
 					</Image.Browser>
 				</Grid>
@@ -134,3 +164,17 @@ export const WidgetBuilder = () => {
 		</Grid.Container>
 	);
 };
+
+function isElementInViewport(el: HTMLElement) {
+	var rect = el.getBoundingClientRect();
+	return (
+		rect.top >= 0 &&
+		rect.left >= 0 &&
+		rect.bottom - rect.height <=
+			(window.innerHeight ||
+				document.documentElement.clientHeight) /* or $(window).height() */ &&
+		rect.right <=
+			(window.innerWidth ||
+				document.documentElement.clientWidth) /* or $(window).width() */
+	);
+}
