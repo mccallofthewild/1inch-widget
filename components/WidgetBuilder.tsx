@@ -9,6 +9,7 @@ import {
 	Loading,
 	Spacer,
 	Spinner,
+	Tag,
 	Text,
 	useBodyScroll,
 	useClipboard,
@@ -102,6 +103,11 @@ export const WidgetBuilder = () => {
 			<Grid.Container gap={2} justify='space-around' md={20}>
 				<Grid xs={24} md={12}>
 					<TokenSearch
+						closeElement={
+							<Tag style={{ opacity: +!!state.toTokenSymbol }} type='lite'>
+								Clear
+							</Tag>
+						}
 						shouldHoldScrollPositionOnSelect={true}
 						title={`Select Output Token`}
 						provider={provider}

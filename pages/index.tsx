@@ -141,7 +141,7 @@ export default function Home(props: WidgetProps) {
 								id='hero-swap'
 								style={{
 									position: 'relative',
-									// width: 340,
+									minWidth: 340,
 									height: 470,
 									opacity: +process.browser,
 								}}

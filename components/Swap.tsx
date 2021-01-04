@@ -245,6 +245,11 @@ export const Swap = (props: {
 	let isAnimatingTokenSwitch = false;
 	return (
 		<form
+			onInvalid={() => {
+				setToast({
+					text: 'Insufficient funds',
+				});
+			}}
 			onSubmit={(e) => {
 				e.preventDefault();
 				if (!web3.account) return;
@@ -451,7 +456,11 @@ export const Swap = (props: {
 							Connect Wallet
 						</button>
 					) : (
-						<button type='submit' className={styles.swap_form_submit_button}>
+						<button
+							onClick={() => {}}
+							type='submit'
+							className={styles.swap_form_submit_button}
+						>
 							Swap Tokens
 						</button>
 					)}

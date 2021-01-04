@@ -1,4 +1,11 @@
-import { CSSProperties, LegacyRef, useEffect, useRef, useState } from 'react';
+import {
+	CSSProperties,
+	LegacyRef,
+	ReactNode,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import { OneInchApi } from '../generated/OneInchApi';
 import { OneInchGraph } from '../generated/OneInchGraph';
 import { useAllTokens } from '../hooks/useAllTokens';
@@ -30,6 +37,11 @@ export const TokenSearch = ({
 	provider,
 	title,
 	shouldHoldScrollPositionOnSelect,
+	closeElement = (
+		<div className={styles.token_search_close_button}>
+			<X></X>
+		</div>
+	),
 }: {
 	onSelect?: (t: OneInchGraph.Token) => any | void;
 	style?: CSSProperties;
@@ -38,6 +50,7 @@ export const TokenSearch = ({
 	provider: ethers.providers.Web3Provider;
 	title?: string;
 	shouldHoldScrollPositionOnSelect?: boolean;
+	closeElement?: React.ReactNode;
 }) => {
 	const allTokens = useAllTokens();
 	const walletTokens = useWalletTokens(provider);
@@ -82,7 +95,13 @@ export const TokenSearch = ({
 		}
 	}, [filter]);
 	return (
-		<div style={style} className={styles.token_search_container}>
+		<div
+			style={{
+				margin: 0,
+				...style,
+			}}
+			className={styles.token_search_container}
+		>
 			<div className={styles.token_search__header}>
 				<Spacer x={0.1}></Spacer>
 				<div>
@@ -96,6 +115,7 @@ export const TokenSearch = ({
 					</div>
 					<Spacer y={0.4}></Spacer>
 				</div>
+
 				<Touchable
 					style={{
 						cursor: 'pointer',
@@ -112,9 +132,8 @@ export const TokenSearch = ({
 							scrollEl.current.scrollTop = 0;
 						}
 					}}
-					className={styles.token_search_close_button}
 				>
-					<X></X>
+					{closeElement}
 				</Touchable>
 			</div>
 			<div className={styles.token_search_bar_container}>
