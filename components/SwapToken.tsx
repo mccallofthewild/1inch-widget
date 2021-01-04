@@ -16,6 +16,7 @@ import { Touchable } from './Touchable';
 import anime from 'animejs';
 import { TokenAvatar } from './TokenAvatar';
 import { useGasPrice } from '../hooks/useGasPrice';
+import { useWeb3React } from '@web3-react/core';
 
 export const SwapToken = (props: {
 	token: OneInchGraph.Token;
@@ -29,7 +30,7 @@ export const SwapToken = (props: {
 	isStatic?: boolean;
 }) => {
 	const store = Store.useContext();
-
+	const web3 = useWeb3React();
 	const [localQuantity, setLocalQuantity, immediateLocalQuantity] = useDebounce<
 		string | number
 	>(props.quantity, 450);
@@ -70,6 +71,8 @@ export const SwapToken = (props: {
 	});
 
 	useEffect(() => {
+		const disableAnimation = true;
+		if (disableAnimation) return;
 		if (!inputRef.current || inputRef.current == document.activeElement) return;
 		if (!inputRef.current.value || inputRef.current.value == props.quantity)
 			return;
@@ -157,47 +160,54 @@ export const SwapToken = (props: {
 
 					<div
 						style={{
-							opacity: props.readonly || !props.hasBalance ? 0 : 1,
+							opacity: props.readonly || !web3.account ? 0 : 1,
 							pointerEvents: props.readonly ? 'none' : 'all',
 							marginBottom: '-1em',
 							textAlign: 'center',
-							...(props.hasBalance &&
-							props.walletBalance &&
-							maxSpend < immediateLocalQuantity
-								? { color: 'red' }
+							...(!props.hasBalance ||
+							(props.hasBalance &&
+								props.walletBalance &&
+								maxSpend < immediateLocalQuantity)
+								? { color: '#ff4567' }
 								: {}),
 						}}
 						className={styles.swap__input_descriptor_text}
 					>
-						/{' '}
-						<LoadingText
-							loading={props.walletBalance == undefined && props.hasBalance}
-							text={
-								<span>
-									{maxSpend?.slice(0, 10)}… (
-									{maxSpend == immediateLocalQuantity ? (
-										<span
-											style={{
-												transform: 'translateY(4px)',
-												display: 'inline-block',
-												height: 13,
-												overflow: 'hidden',
-											}}
-										>
-											<Check size={13}></Check>
+						{props.hasBalance ? (
+							<>
+								/{' '}
+								<LoadingText
+									loading={props.walletBalance == undefined && props.hasBalance}
+									text={
+										<span>
+											{maxSpend?.slice(0, 10)}… (
+											{maxSpend == immediateLocalQuantity ? (
+												<span
+													style={{
+														transform: 'translateY(4px)',
+														display: 'inline-block',
+														height: 13,
+														overflow: 'hidden',
+													}}
+												>
+													<Check size={13}></Check>
+												</span>
+											) : (
+												<u
+													onClick={() => setLocalQuantity(maxSpend)}
+													style={{ cursor: 'pointer', height: 15 }}
+												>
+													MAX
+												</u>
+											)}
+											)
 										</span>
-									) : (
-										<u
-											onClick={() => setLocalQuantity(maxSpend)}
-											style={{ cursor: 'pointer', height: 15 }}
-										>
-											MAX
-										</u>
-									)}
-									)
-								</span>
-							}
-						></LoadingText>
+									}
+								></LoadingText>
+							</>
+						) : (
+							'/ zero funds'
+						)}
 					</div>
 				</div>
 				<div className={styles.swap_form_token_amount_in_fiat_container}>

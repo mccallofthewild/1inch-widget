@@ -38,8 +38,3 @@ export default function Layout({ children, home }) {
 		</div>
 	);
 }
-
-export const getStaticProps = () => {
-	console.log('getting static props from layout!');
-	return { props: {} };
-};

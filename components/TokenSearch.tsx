@@ -24,7 +24,7 @@ import { TokenAvatar } from './TokenAvatar';
 const defaultOnClose = () => {};
 export const TokenSearch = ({
 	onSelect = (t) => {},
-	style,
+	style = {},
 	onClose = defaultOnClose,
 	filter = () => true,
 	provider,
@@ -32,7 +32,7 @@ export const TokenSearch = ({
 	shouldHoldScrollPositionOnSelect,
 }: {
 	onSelect?: (t: OneInchGraph.Token) => any | void;
-	style: CSSProperties;
+	style?: CSSProperties;
 	onClose?: Function;
 	filter?: (t: OneInchGraph.Token) => boolean;
 	provider: ethers.providers.Web3Provider;
@@ -48,7 +48,6 @@ export const TokenSearch = ({
 	);
 
 	useEffect(() => {
-		console.log('reiterating token search');
 		const walletTokenAddressMerge = walletTokens
 			.map((t) => t.id)
 			.join('-')

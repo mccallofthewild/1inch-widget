@@ -88,7 +88,8 @@ export const useSwap = (
 			}
 
 			setSwapStatus('SENDING_TX');
-			if (false) {
+			const testMode = false;
+			if (process.env.NODE_ENV == 'development' && testMode) {
 				// UI DEV MODE (Skip Transactions)
 			} else {
 				// Swap
@@ -153,10 +154,7 @@ const approve = async (
 		spenderAddress
 	);
 
-	// console.log({ allowance: formatUnits(allowance, fromToken.decimals) });
-
 	if (allowance.gte(parsedAmountFromToken)) {
-		console.log('allowance is adequate');
 		return;
 	}
 

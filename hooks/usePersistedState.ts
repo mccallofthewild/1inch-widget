@@ -1,5 +1,5 @@
 import { SetStateAction, useEffect, useState } from 'react';
-export const useCachedState = <T>(
+export const usePersistedState = <T>(
 	initialState: T | (() => T),
 	cacheKey: string,
 	cacheDuration = 1000 * 60 * 60 * 24
@@ -9,7 +9,7 @@ export const useCachedState = <T>(
 	useEffect(() => {
 		try {
 			const timestamp = localStorage.getItem(cacheTimestampKey);
-			if (timestamp && +timestamp > Date.now() - cacheDuration) {
+			if (timestamp && +timestamp > Math.abs(Date.now() - cacheDuration)) {
 				const item = localStorage.getItem(cacheKey);
 				setValue(JSON.parse(item));
 			}

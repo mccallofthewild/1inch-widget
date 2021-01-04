@@ -41,4 +41,4 @@ calc.B = calcBFunc;
 calc.BN = calcBNFunc;
 calc.math = mathjs;
 
-// console.log(math`200 > 300`);
+// USAGE: math`200 > 300`

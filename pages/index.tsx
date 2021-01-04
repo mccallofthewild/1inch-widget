@@ -46,14 +46,11 @@ export default function Home(props: WidgetProps) {
 	const isSmallScreen = useMediaQuery('md', {
 		match: 'down',
 		ssrMatchMedia: (query) => {
-			console.log({ query });
 			return {
 				matches: true,
 			};
 		},
 	});
-
-	console.log({ isSmallScreen });
 
 	const textAlign = isSmallScreen ? 'center' : 'left';
 
@@ -116,7 +113,7 @@ export default function Home(props: WidgetProps) {
 										// alignSelf: 'flex-end',
 									}}
 								>
-									The Swap UX that <br></br> packs a punch{' '}
+									The DEX Swap Widget that <br></br> packs a punch{' '}
 									<div id='fist' style={{ display: 'inline-block' }}>
 										👊
 									</div>
@@ -221,7 +218,14 @@ export default function Home(props: WidgetProps) {
 			</Grid.Container>
 			<Spacer y={5}></Spacer>
 			<Grid.Container>
-				<p style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.3)' }}>
+				<p
+					style={{
+						fontSize: '0.5rem',
+						width: '100%',
+						textAlign: 'center',
+						color: 'rgba(255,255,255,0.3)',
+					}}
+				>
 					© McCall Alexander, 2021
 				</p>
 			</Grid.Container>
