@@ -153,7 +153,7 @@ const approve = async (
 		spenderAddress
 	);
 
-	console.log({ allowance: formatUnits(allowance, fromToken.decimals) });
+	// console.log({ allowance: formatUnits(allowance, fromToken.decimals) });
 
 	if (allowance.gte(parsedAmountFromToken)) {
 		console.log('allowance is adequate');

@@ -3,7 +3,7 @@ import { Web3ReactProvider } from '@web3-react/core';
 import { ethers } from 'ethers';
 import { useInfuraProvider } from '../hooks/useInfuraProvider';
 import { GeistProvider } from '@geist-ui/react';
-import { Store } from '../store/Store';
+import { Store } from '../contexts/Store';
 import * as _react from 'react';
 
 const fn = _react.useEffect;

@@ -10,7 +10,7 @@ import { useDebounce } from '../hooks/useDebounce';
 import { safeParseUnits } from '../helpers/safeParseUnits';
 import { Check } from '@geist-ui/react-icons';
 import { getTokenImageUrl } from '../helpers/getTokenImageUrl';
-import { Store } from '../store/Store';
+import { Store } from '../contexts/Store';
 import { LoadingText } from './LoadingText';
 import { Touchable } from './Touchable';
 import anime from 'animejs';
@@ -44,12 +44,15 @@ export const SwapToken = (props: {
 		)
 			return props.walletBalance || '0';
 		const approxGasUsage = 310400;
-		return formatUnits(
-			parseUnits(props.walletBalance, 'ether').sub(
-				parseUnits(gasPrice, 'gwei').mul(BigNumber.from(approxGasUsage))
-			),
-			'ether'
+		const etherBalance = parseUnits(props.walletBalance, 'ether');
+		const etherTxFee = parseUnits(gasPrice, 'gwei').mul(
+			BigNumber.from(approxGasUsage)
 		);
+		const maxSpendParsed = etherBalance.sub(etherTxFee);
+		if (maxSpendParsed.lte(BigNumber.from(0))) {
+			return '0';
+		}
+		return formatUnits(maxSpendParsed, 'ether');
 	}, [gasPrice, props.token?.symbol, props.walletBalance]);
 
 	useEffect(() => {

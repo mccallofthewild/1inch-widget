@@ -3,7 +3,9 @@ import { useEffect } from 'react';
 export const useNextTick = () => {
 	const callbacks = [];
 	useEffect(() => {
-		callbacks.forEach((cb) => cb());
+		setTimeout(() => {
+			callbacks.forEach((cb) => cb());
+		}, 1);
 	});
 	return () => {
 		return new Promise<void>((r) => {

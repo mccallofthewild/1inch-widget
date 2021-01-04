@@ -16,7 +16,7 @@ import { Swap } from '../components/Swap';
 import { ArrowRight, ChevronDown } from '@geist-ui/react-icons';
 import { getStaticProps as widgetGetStaticProps, WidgetProps } from './widget';
 import { GetStaticProps } from 'next';
-import { Store } from '../store/Store';
+import { Store } from '../contexts/Store';
 import { animateHomePageText } from '../helpers/animateHomePageText';
 import { WidgetBuilder } from '../components/WidgetBuilder';
 import styles from './index.module.css';
@@ -90,6 +90,7 @@ export default function Home(props: WidgetProps) {
 								<div
 									id='meet-bruce'
 									style={{
+										opacity: +process.browser,
 										cursor: 'pointer',
 										fontSize: 69,
 										color: '#FFFFFF',
@@ -105,6 +106,7 @@ export default function Home(props: WidgetProps) {
 								<Grid
 									id='hero-description'
 									style={{
+										opacity: +process.browser,
 										marginTop: 10,
 										color: 'white',
 										fontWeight: 200,
@@ -123,6 +125,7 @@ export default function Home(props: WidgetProps) {
 								<Grid style={{ textAlign }}>
 									<Button
 										onClick={() => scrollToBuilder()}
+										style={{ opacity: +process.browser }}
 										id='get-started-button'
 										color='black'
 										iconRight={<ArrowRight></ArrowRight>}
@@ -143,6 +146,7 @@ export default function Home(props: WidgetProps) {
 									position: 'relative',
 									// width: 340,
 									height: 470,
+									opacity: +process.browser,
 								}}
 							>
 								<Swap allTokens={props.allTokens}></Swap>

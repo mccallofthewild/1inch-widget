@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { web } from 'webpack';
 import { ERC20__factory } from '../generated/contracts';
 import { OneInchGraph } from '../generated/OneInchGraph';
-import { Store } from '../store/Store';
+import { Store } from '../contexts/Store';
 
 export const useTokenBalances = (
 	provider: ethers.providers.Provider,

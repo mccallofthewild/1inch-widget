@@ -14,18 +14,19 @@
 		), */ url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.08' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E"),
 		radial-gradient(
 			49% 100%,
-			rgba(0, 0, 0, 0) 37%,
+			rgba(0, 0, 0, 0.1) 37%,
 			rgba(8, 8, 8, 0.26) 59%,
 			#080808 100%
 		),
 		linear-gradient(
 			to bottom,
-			rgba(0, 0, 0, 0.25),
-			rgba(0, 0, 0, 0.1),
-			rgba(0, 0, 0, 0.1),
-			rgba(0, 0, 0, 0.9)
+			rgba(0, 0, 0, 0.75),
+			rgba(0, 0, 0, 0.7),
+			rgba(0, 0, 0, 0.7),
+			rgba(0, 0, 0, 1)
 		),
 		/* url(https://media.giphy.com/media/14rUo8IeWVQVNe/giphy-downsized.gif); */
 			/* url(https://media.giphy.com/media/l41m1H2BYnLRV26QM/giphy.gif); */
-			url(../public/images/background.png);
+			url(/images/widget-builder-browser-background-invert.png);
+	/* url(../public/images/background.png); */
 }

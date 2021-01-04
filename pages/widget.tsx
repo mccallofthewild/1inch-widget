@@ -5,7 +5,7 @@ import { OneInchGraph } from '../generated/OneInchGraph';
 import { convertImageUrlToDataUri } from '../helpers/convertImageUrlToDataUri';
 import { getTokenImageUrl } from '../helpers/getTokenImageUrl';
 import { loadAllTokens } from '../loaders/loadAllTokens';
-import { Store } from '../store/Store';
+import { Store } from '../contexts/Store';
 import { useRouter } from 'next/router';
 export type WidgetProps = {
 	allTokens: OneInchGraph.Token[];

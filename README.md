@@ -36,7 +36,7 @@ Packs a Punch 👊
 ### 🥞 Stack
   * Typescript
   * React
-  * Next.js - Static generated with tokens & leading token logos pre-loaded for instant embeded rendering 
+  * Next.js - Static generated with tokens & leading token logos pre-loaded for instant embedded rendering 
   * Web3React - Enabling wallet interconnectivity
   * Ethers - Ethereum network interaction 
 

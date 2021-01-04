@@ -20,18 +20,24 @@ import { getTokenImageUrl } from '../helpers/getTokenImageUrl';
 import { TokenAvatar } from './TokenAvatar';
 
 // Just load the top 100 tokens then dynamically search for the rest?
+
+const defaultOnClose = () => {};
 export const TokenSearch = ({
 	onSelect = (t) => {},
 	style,
-	onClose = () => {},
+	onClose = defaultOnClose,
 	filter = () => true,
 	provider,
+	title,
+	shouldHoldScrollPositionOnSelect,
 }: {
 	onSelect?: (t: OneInchGraph.Token) => any | void;
 	style: CSSProperties;
 	onClose?: Function;
 	filter?: (t: OneInchGraph.Token) => boolean;
 	provider: ethers.providers.Web3Provider;
+	title?: string;
+	shouldHoldScrollPositionOnSelect?: boolean;
 }) => {
 	const allTokens = useAllTokens();
 	const walletTokens = useWalletTokens(provider);
@@ -87,15 +93,23 @@ export const TokenSearch = ({
 							swapStyles.swap_header_item_active,
 						].join(' ')}
 					>
-						{'SEARCH ' + allTokens.length + ' TOKENS'}
+						{title || 'SEARCH ' + allTokens.length + ' TOKENS'}
 					</div>
 					<Spacer y={0.4}></Spacer>
 				</div>
 				<Touchable
-					style={{ cursor: 'pointer' }}
+					style={{
+						cursor: 'pointer',
+						...(onClose == defaultOnClose
+							? {
+									opacity: 0,
+									pointerEvents: 'none',
+							  }
+							: {}),
+					}}
 					onClick={() => {
 						onClose();
-						if (scrollEl.current) {
+						if (scrollEl.current && !shouldHoldScrollPositionOnSelect) {
 							scrollEl.current.scrollTop = 0;
 						}
 					}}
@@ -128,10 +142,10 @@ export const TokenSearch = ({
 							cursor: 'pointer',
 						}}
 						onClick={() => {
-							onSelect(t);
 							onClose();
+							onSelect(t);
 							setQuery('');
-							if (scrollEl.current) {
+							if (scrollEl.current && !shouldHoldScrollPositionOnSelect) {
 								scrollEl.current.scrollTop = 0;
 							}
 						}}

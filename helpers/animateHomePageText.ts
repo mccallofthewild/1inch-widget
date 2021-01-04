@@ -9,7 +9,7 @@ export const animateHomePageText = async () => {
 		opacity: 0,
 	});
 
-	await new Promise((r) => setTimeout(r, 2000));
+	await new Promise((r) => setTimeout(r, 0));
 	const fx = {
 		in: {
 			duration: 700,
@@ -77,7 +77,7 @@ export const animateHomePageText = async () => {
 	]);
 
 	await anime({
-		delay: 1000,
+		delay: 0,
 		targets: document.getElementById('fist'),
 		scale: [0, 20, 15, 0, 1],
 		zIndex: 20,

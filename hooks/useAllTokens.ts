@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { OneInchGraph } from '../generated/OneInchGraph';
 import { gql } from '../helpers/gql';
 import { loadAllTokens } from '../loaders/loadAllTokens';
-import { Store } from '../store/Store';
+import { Store } from '../contexts/Store';
 import { useCachedState } from './useCachedState';
 
 let complete = false;

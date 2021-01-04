@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { OneInchGraph } from '../generated/OneInchGraph';
 import { getGradients } from '../helpers/getGradients';
 import { getTokenImageUrl } from '../helpers/getTokenImageUrl';
-import { Store } from '../store/Store';
+import { Store } from '../contexts/Store';
 
 const loadedImages: {
 	[key: string]: boolean;

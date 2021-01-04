@@ -23,10 +23,6 @@ const initialState: State = {
 	},
 };
 
-type A<T, P> = {
-	type: T;
-	payload: P;
-};
 type Actions =
 	| ['AddPreloadedDataImageUri', { url: string; dataURI: string }]
 	| ['SetAllTokens', OneInchGraph.Token[]]

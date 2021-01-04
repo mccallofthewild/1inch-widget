@@ -31,20 +31,37 @@ import { NoFragmentCyclesRule } from 'graphql';
 import { useWalletTokens } from '../hooks/useWalletTokens';
 import { useTokenBalances } from '../hooks/useTokenBalances';
 import { ArrowDown, RefreshCcw } from '@geist-ui/react-icons';
-import { Store } from '../store/Store';
+import { Store } from '../contexts/Store';
 import { StringDecoder } from 'string_decoder';
 import { Touchable } from '../components/Touchable';
 import { useNextTick } from '../hooks/useNextTick';
 
 rateLimitContractsAndOneInch();
+
+let hasCheckedForEthereum = false;
 export const Swap = (props: {
 	allTokens?: OneInchGraph.Token[];
 	staticToTokenSymbol?: string;
 }) => {
+	const alertIfNoWeb3 = () => {
+		// @ts-ignore
+		if (process.browser && !window.ethereum)
+			setToast({
+				text: 'Web3 provider not detected',
+				delay: 10000,
+				actions: [
+					{
+						name: 'Download Metamask',
+						handler: () =>
+							window.open('https://metamask.io/download.html', '_blank'),
+					},
+				],
+			});
+	};
+
 	const allTokens = useAllTokens(props.allTokens);
 	const [fromToken, setFromToken] = useState<OneInchGraph.Token>();
 	const [toToken, setToToken] = useState<OneInchGraph.Token>();
-
 	const [quantity, setQuantity] = useState<string>('1');
 	const [output, setOutput] = useState<string>('');
 	const gasPrice = useGasPrice();
@@ -73,7 +90,8 @@ export const Swap = (props: {
 				],
 			});
 			await web3.activate(connector, (e) => {
-				alert(e.message);
+				// alert(e.message);
+				alertIfNoWeb3();
 			});
 			setProvider(
 				new ethers.providers.Web3Provider(await connector.getProvider())
@@ -426,18 +444,22 @@ export const Swap = (props: {
 						</div>
 					</div>
 
-					<button
-						onClick={() => {
-							if (!web3.account) activateWeb3();
-						}}
-						type='submit'
-						className={styles.swap_form_submit_button}
-					>
-						{web3.account ? 'Swap Tokens' : 'Connect Wallet'}
-					</button>
+					{!web3.account ? (
+						<button
+							onClick={() => activateWeb3()}
+							className={styles.swap_form_submit_button}
+							type='button'
+						>
+							Connect Wallet
+						</button>
+					) : (
+						<button type='submit' className={styles.swap_form_submit_button}>
+							Swap Tokens
+						</button>
+					)}
 					<div className={styles.swap_form_meta_container}>
 						<div>Max price slippage: 1%</div>
-						<div>Gas price: {gasPrice} GWEI</div>
+						<div>Gas price: {~~+gasPrice} GWEI</div>
 					</div>
 				</div>
 				<TokenSearch
@@ -454,7 +476,12 @@ export const Swap = (props: {
 						searchState.onSelect(t);
 					}}
 					style={{
-						display: searchState.isVisible ? '' : 'none',
+						transition: 'all 250ms ease-in-out',
+						pointerEvents: searchState.isVisible ? 'all' : 'none',
+						opacity: searchState.isVisible ? 1 : 0,
+						transform: searchState.isVisible
+							? 'translateY(0px)'
+							: 'translateY(1000px)',
 						position: 'absolute',
 						margin: 0,
 						top: 0,
