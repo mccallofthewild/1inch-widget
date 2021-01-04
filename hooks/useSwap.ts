@@ -88,8 +88,8 @@ export const useSwap = (
 			}
 
 			setSwapStatus('SENDING_TX');
-			// TEST MODE
 			if (false) {
+				// UI DEV MODE (Skip Transactions)
 			} else {
 				// Swap
 				const {

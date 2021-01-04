@@ -38,7 +38,12 @@
 }
 
 .button_group {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
 	width: 100%;
+	gap: 5px;
 	margin-top: 15px;
 }
 
@@ -49,20 +54,20 @@
 	width: calc(100% - 30px);
 	border-radius: 10px;
 	background: black;
-	border: none;
+	border: 1px solid black;
+	/* border: none; */
 	color: white;
 	/* font-weight: bold; */
 }
 
-.button_outline {
+.button_light {
 	background: transparent;
 	color: black;
-	border: 1px solid black;
 }
 
-.button_outline_white {
+.button_light_white {
 	composes: button;
-	composes: button_outline;
+	composes: button_light;
 	color: white;
 	border-color: white;
 }

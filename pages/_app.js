@@ -6,13 +6,16 @@ import { GeistProvider } from '@geist-ui/react';
 import { Store } from '../contexts/Store';
 import * as _react from 'react';
 
-const fn = _react.useEffect;
-_react.useEffect = function (fn2, ...args) {
-	return fn(() => {
-		console.log(...args);
-		return fn2();
-	}, ...args);
-};
+const shouldLogUseEffect = false;
+if (shouldLogUseEffect) {
+	const fn = _react.useEffect;
+	_react.useEffect = function (fn2, ...args) {
+		return fn(() => {
+			console.log(...args);
+			return fn2();
+		}, ...args);
+	};
+}
 
 export default function App({ Component, pageProps }) {
 	const provider = useInfuraProvider();

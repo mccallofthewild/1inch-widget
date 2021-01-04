@@ -1,6 +1,6 @@
 import { Button, Loading, Spacer, Spinner, Tooltip } from '@geist-ui/react';
 import { BigNumber } from 'ethers';
-import { formatUnits, parseUnits } from 'ethers/lib/utils';
+import { formatEther, formatUnits, parseUnits } from 'ethers/lib/utils';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { OneInchGraph } from '../generated/OneInchGraph';
 import { getGradients } from '../helpers/getGradients';
@@ -52,7 +52,7 @@ export const SwapToken = (props: {
 		if (maxSpendParsed.lte(BigNumber.from(0))) {
 			return '0';
 		}
-		return formatUnits(maxSpendParsed, 'ether');
+		return formatEther(maxSpendParsed);
 	}, [gasPrice, props.token?.symbol, props.walletBalance]);
 
 	useEffect(() => {

@@ -12,7 +12,7 @@ export const animateHomePageText = async () => {
 	await new Promise((r) => setTimeout(r, 0));
 	const fx = {
 		in: {
-			duration: 700,
+			duration: 900,
 			delay: function (el, index) {
 				return (index - 1) * 80;
 			},
@@ -53,6 +53,8 @@ export const animateHomePageText = async () => {
 	anime.set(titleEl, {
 		opacity: 1,
 	});
+
+	await new Promise((r) => setTimeout(r, 1000));
 
 	await anime({
 		targets: targets,

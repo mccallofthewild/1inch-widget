@@ -10,6 +10,7 @@ import { LoadingText } from './LoadingText';
 import styles from '../styles/swap.module.css';
 import utilStyles from '../styles/utils.module.css';
 import { OneInchGraph } from '../generated/OneInchGraph';
+import { Spacer } from '@geist-ui/react';
 export const SwapStageConfirm = (props: {
 	swap: OneInchApi.Swap;
 	fromToken: OneInchGraph.Token;
@@ -75,7 +76,13 @@ export const SwapStageConfirm = (props: {
 					<code>Order:</code>
 				</u> */}
 				{/* <br /> */}
-				<small>
+				<small
+					style={{
+						display: 'block',
+						whiteSpace: 'nowrap',
+						overflowX: 'scroll',
+					}}
+				>
 					<code>
 						{'  '}
 						<b>Product:</b> {swap?.toToken.symbol}
@@ -83,13 +90,13 @@ export const SwapStageConfirm = (props: {
 					<br />
 					<code>
 						<span title={swapStats.toTokenQuantity}>
-							<b>Quantity:</b> {(+swapStats.toTokenQuantity).toFixed(8)}…
+							<b>Quantity:</b> {+swapStats.toTokenQuantity}
 						</span>
 					</code>
 					<br />
 					<code>
 						<span title={swapStats.rate}>
-							× <b>Rate:</b> {(+swapStats.rate).toFixed(8)}…
+							× <b>Rate:</b> {+swapStats.rate}
 						</span>{' '}
 						{swap?.fromToken.symbol}/{swap?.toToken.symbol}
 					</code>
@@ -132,15 +139,16 @@ export const SwapStageConfirm = (props: {
 						<b>TOTAL:</b> ≈$<LoadingText text={totalInUSD}></LoadingText>
 					</code>
 				</small>
+				<Spacer y={2}></Spacer>
 				<div className={utilStyles.button_group}>
-					<button onClick={() => props.confirm()} className={utilStyles.button}>
-						Confirm
-					</button>
 					<button
 						onClick={() => props.deny()}
-						className={[utilStyles.button, utilStyles.button_outline].join(' ')}
+						className={[utilStyles.button, utilStyles.button_light].join(' ')}
 					>
 						Cancel
+					</button>
+					<button onClick={() => props.confirm()} className={utilStyles.button}>
+						Confirm
 					</button>
 				</div>
 			</div>

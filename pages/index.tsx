@@ -221,7 +221,7 @@ export default function Home(props: WidgetProps) {
 			</Grid.Container>
 			<Spacer y={5}></Spacer>
 			<Grid.Container>
-				<p style={{ color: 'rgba(255,255,255,0.3)' }}>
+				<p style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.3)' }}>
 					© McCall Alexander, 2021
 				</p>
 			</Grid.Container>
