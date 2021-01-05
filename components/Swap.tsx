@@ -127,6 +127,11 @@ export const Swap = (props: {
 		if (!props.staticToTokenSymbol) return;
 		let token = allTokens.find((t) => t.symbol == props.staticToTokenSymbol);
 		if (token) setToToken(token);
+		if (token?.id == fromToken?.id) {
+			setFromToken(
+				allTokens.find((t) => t.symbol != props.staticToTokenSymbol)
+			);
+		}
 	}, [props.staticToTokenSymbol, allTokens]);
 
 	const tokenSearchRef = useRef<HTMLDivElement>();

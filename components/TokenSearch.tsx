@@ -70,7 +70,7 @@ export const TokenSearch = ({
 			) {
 				return 1;
 			}
-			return -1;
+			return +a.tradeCount < b.tradeCount ? 0 : -1;
 		});
 		return sorted;
 	}, [
