@@ -15,6 +15,9 @@ Packs a Punch 👊
 
 
 # 🏊‍♀️  Product Deepdive 
+## Demo
+<img src="./public/images/demo.gif" width="400"/>
+
 ## Features:
   * Over 2300 Tokens
   * Automatic fiat conversions via stablecoin quotes
