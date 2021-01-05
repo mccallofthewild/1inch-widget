@@ -65,18 +65,9 @@ export const TokenSearch = ({
 
 		const sorted = [...allTokens].sort((a, b) => {
 			if (
-				walletTokenBalances[a.id.toLowerCase()] <
-				walletTokenBalances[b.id.toLowerCase()]
-			) {
-				return 1;
-			}
-			if (
 				!walletTokenAddressMerge.includes(a.id.toLowerCase()) &&
 				walletTokenAddressMerge.includes(b.id.toLowerCase())
 			) {
-				return 1;
-			}
-			if (a.symbol > b.symbol) {
 				return 1;
 			}
 			return -1;
