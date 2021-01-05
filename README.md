@@ -1,7 +1,6 @@
 <p align="center"><a href="https://brucecrypto.vercel.app/" target="_blank" rel="noopener noreferrer"><img width="300" src="public/images/bruce.svg" alt="Bruce Logo"></a></p>
 <p align="center">
-The DEX Swap Widget that
-packs a punch 👊
+The DEX Swap Widget that <br/> Packs a Punch 👊
 </p>
 <p align="center">
   https://brucecrypto.vercel.app/
