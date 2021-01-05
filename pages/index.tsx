@@ -241,8 +241,8 @@ export default function Home(props: WidgetProps) {
 						years ago, but was ultimately strangled by the bureaucracy that
 						centralized systems invariably beckon. 1inch poises an opportunity
 						to decentralize and simplify any-to-any token transactions. The
-						purpose of this project is to capture that opportunity in a simple
-						interface that anyone can share on their website.
+						purpose of this project is to capture that opportunity in an
+						easy-to-use interface that anyone can share on their website.
 					</p>
 				</Grid>
 				<Spacer y={5}></Spacer>
