@@ -113,7 +113,7 @@ export const useSwap = (
 			const swap = await repeatOnFail(
 				async () =>
 					await await new OneInchApi.QuoteSwapApi().swap({
-						burnChi: true,
+						// burnChi: true,
 						fromTokenAddress: fromToken.id,
 						toTokenAddress: toToken.id,
 						amount: (parsedAmountFromToken.toString() as unknown) as number,
