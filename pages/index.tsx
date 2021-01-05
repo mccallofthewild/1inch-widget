@@ -5,6 +5,7 @@ import {
 	Button,
 	Card,
 	Code,
+	Divider,
 	Grid,
 	Row,
 	Spacer,
@@ -201,6 +202,7 @@ export default function Home(props: WidgetProps) {
 					</a>
 				</Grid> */}
 			</Grid.Container>
+			<Spacer y={5}></Spacer>
 			<Grid.Container direction='column' justify='center' alignItems='center'>
 				<p
 					style={{
@@ -217,6 +219,34 @@ export default function Home(props: WidgetProps) {
 				<img width={300} src='./images/bruce-lee-signature.png' alt='' />
 			</Grid.Container>
 			<Spacer y={5}></Spacer>
+			<Divider></Divider>
+
+			<Grid.Container direction='column' alignItems='center'>
+				<Spacer y={5}></Spacer>
+
+				<Grid xs={21}>
+					<p
+						style={{
+							fontSize: '1.2rem',
+							color: 'white',
+							textAlign: 'center',
+							// fontStyle: 'italic',
+							fontWeight: 200,
+						}}
+					>
+						1inch.exchange was born from the philosophy of Bruce Lee’s world
+						renowned one inch punch, a Martial Arts pinnacle of speed, vigor and
+						efficiency. The Bruce swap widget aims to embody this same idea: a
+						simple interface with powerful results. Shapeshift attempted this
+						years ago, but was ultimately strangled by the bureaucracy that
+						centralized systems invariably beckon. 1inch poises an opportunity
+						to decentralize and simplify any-to-any token transactions. The
+						purpose of this project is to capture that opportunity in a simple
+						interface that anyone can share on their website.
+					</p>
+				</Grid>
+				<Spacer y={5}></Spacer>
+			</Grid.Container>
 			<Grid.Container>
 				<p
 					style={{
