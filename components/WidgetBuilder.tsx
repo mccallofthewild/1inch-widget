@@ -208,6 +208,8 @@ export const WidgetBuilder = () => {
 								});
 							}}
 						>
+							<Text h3>Click to copy</Text>
+							{/* <Divider></Divider> */}
 							<mark style={{ backgroundColor: 'rgba(0,100,255,0.2)' }}>
 								<Code>{widgetHtml}</Code>
 							</mark>
