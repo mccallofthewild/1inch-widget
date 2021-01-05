@@ -258,6 +258,12 @@ export const Swap = (props: {
 					});
 					return;
 				}
+				if (fromToken.id == toToken.id) {
+					setToast({
+						text: `Tokens cannot be the same`,
+					});
+					return;
+				}
 				return swapState.execute();
 			}}
 			className={styles.swap_container}
