@@ -3,6 +3,7 @@ import {
 	LegacyRef,
 	ReactNode,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
@@ -56,30 +57,43 @@ export const TokenSearch = ({
 	const walletTokens = useWalletTokens(provider);
 	const walletTokenBalances = useTokenBalances(provider, walletTokens);
 	const [query, setQuery, immediateQuery] = useDebounce('', 500);
-	const [displayedTokens, setDisplayedTokens] = useState<OneInchGraph.Token[]>(
-		[]
-	);
 
-	useEffect(() => {
+	const sortedTokens = useMemo(() => {
 		const walletTokenAddressMerge = walletTokens
-			.map((t) => t.id)
-			.join('-')
-			.toLowerCase();
-		const searchResults = allTokens.filter((t) =>
-			(t.symbol + ' ' + t.name).toLowerCase().includes(query.toLowerCase())
-		);
-		const sorted = sort([...searchResults]).asc([
-			(t) => +walletTokenBalances[t.id] * 100000,
-			(t) => (walletTokenAddressMerge.includes(t.id.toLowerCase()) ? 100 : 0),
-			(t) => t.symbol,
-		]);
-		setDisplayedTokens(sorted);
+			.map((t) => t.id.toLowerCase())
+			.join('-');
+
+		const sorted = [...allTokens].sort((a, b) => {
+			if (
+				walletTokenBalances[a.id.toLowerCase()] <
+				walletTokenBalances[b.id.toLowerCase()]
+			) {
+				return 1;
+			}
+			if (
+				!walletTokenAddressMerge.includes(a.id.toLowerCase()) &&
+				walletTokenAddressMerge.includes(b.id.toLowerCase())
+			) {
+				return 1;
+			}
+			if (a.symbol > b.symbol) {
+				return 1;
+			}
+			return -1;
+		});
+		return sorted;
 	}, [
 		allTokens.length,
-		query,
-		Object.values(walletTokenBalances).length,
+		Object.values(walletTokenBalances).join(''),
 		walletTokens.length,
 	]);
+
+	const displayedTokens = useMemo(() => {
+		const searchResults = sortedTokens.filter((t) =>
+			(t.symbol + ' ' + t.name).toLowerCase().includes(query.toLowerCase())
+		);
+		return searchResults;
+	}, [sortedTokens, query]);
 
 	const scrollEl = useRef<HTMLDivElement>();
 	const tokenSearchResultHeight = 40;

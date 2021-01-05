@@ -48,7 +48,7 @@ export const useInfiniteScroll = <T>(
 		listener();
 		scrollEl.addEventListener('scroll', listener);
 		return () => scrollEl.removeEventListener('scroll', listener);
-	}, [scrollEl, data]);
+	}, [scrollEl, data, data.length]);
 	useEffect(() => {
 		if (scrollEl) scrollEl.scrollTop = 0;
 	}, [data]);

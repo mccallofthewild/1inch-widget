@@ -1,7 +1,7 @@
 import { AsyncReturnType } from 'type-fest';
 export async function repeatOnFail<T extends () => Promise<any>>(
 	fn: T,
-	{ waitFor = 500, iterations = 1 } = {}
+	{ waitFor = 500, iterations = 1, waitForMultiplier = 1 } = {}
 ): Promise<AsyncReturnType<T>> {
 	if (!iterations) throw new Error('iterations param required for tryRun');
 	let count = 0;
@@ -19,6 +19,7 @@ export async function repeatOnFail<T extends () => Promise<any>>(
 				throw e;
 			}
 			await new Promise((resolve) => setTimeout(resolve, waitFor));
+			waitFor = waitFor * waitForMultiplier;
 		}
 	}
 	return rtn;

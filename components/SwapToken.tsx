@@ -17,6 +17,7 @@ import anime from 'animejs';
 import { TokenAvatar } from './TokenAvatar';
 import { useGasPrice } from '../hooks/useGasPrice';
 import { useWeb3React } from '@web3-react/core';
+import { calc } from '../helpers/calc';
 
 export const SwapToken = (props: {
 	token: OneInchGraph.Token;
@@ -29,32 +30,64 @@ export const SwapToken = (props: {
 	hasBalance: boolean;
 	isStatic?: boolean;
 }) => {
-	const store = Store.useContext();
 	const web3 = useWeb3React();
 	const [localQuantity, setLocalQuantity, immediateLocalQuantity] = useDebounce<
 		string | number
 	>(props.quantity, 450);
 
 	const gasPrice = useGasPrice();
-	const maxSpend = useMemo(() => {
+	const { maxSpend, isEqualToMaxSpend, isGreaterThanMaxSpend } = useMemo<{
+		maxSpend: string;
+		isEqualToMaxSpend: boolean;
+		isGreaterThanMaxSpend: boolean;
+	}>(() => {
 		if (
-			props.token?.symbol != 'ETH' ||
-			!props.hasBalance ||
+			!props.token ||
 			!props.walletBalance ||
-			!gasPrice
-		)
-			return props.walletBalance || '0';
-		const approxGasUsage = 310400;
-		const etherBalance = parseUnits(props.walletBalance, 'ether');
-		const etherTxFee = parseUnits(gasPrice, 'gwei').mul(
-			BigNumber.from(approxGasUsage)
-		);
-		const maxSpendParsed = etherBalance.sub(etherTxFee);
-		if (maxSpendParsed.lte(BigNumber.from(0))) {
-			return '0';
+			(props.token?.symbol == 'ETH' && !gasPrice) ||
+			!props.hasBalance ||
+			!props.walletBalance
+		) {
+			return {
+				maxSpend: '0',
+				isEqualToMaxSpend: false,
+				isGreaterThanMaxSpend: false,
+			};
 		}
-		return formatEther(maxSpendParsed);
-	}, [gasPrice, props.token?.symbol, props.walletBalance]);
+		const parsedQuantity = safeParseUnits(
+			(immediateLocalQuantity || '0') + '',
+			props.token
+		);
+		const parsedBalance = safeParseUnits(
+			props.walletBalance || '0',
+			props.token
+		);
+		let maxSpendParsed = BigNumber.from(parsedBalance);
+		if (props.token?.symbol == 'ETH') {
+			const approxGasUsage = 310400;
+			const etherTxFee = parseUnits(gasPrice, 'gwei').mul(
+				BigNumber.from(approxGasUsage)
+			);
+			maxSpendParsed = parsedBalance.sub(etherTxFee);
+			if (maxSpendParsed.lte(BigNumber.from(0))) {
+				maxSpendParsed = BigNumber.from(0);
+			}
+		}
+		const maxSpendFormatted = formatUnits(
+			BigNumber.from(maxSpendParsed),
+			BigNumber.from(props.token.decimals)
+		);
+		return {
+			isEqualToMaxSpend: parsedQuantity.eq(maxSpendParsed),
+			isGreaterThanMaxSpend: parsedQuantity.gt(maxSpendParsed),
+			maxSpend: maxSpendFormatted,
+		};
+	}, [
+		gasPrice,
+		props.token?.symbol,
+		props.walletBalance,
+		immediateLocalQuantity,
+	]);
 
 	useEffect(() => {
 		if (props.setQuantity) props.setQuantity(localQuantity);
@@ -165,9 +198,7 @@ export const SwapToken = (props: {
 							marginBottom: '-1em',
 							textAlign: 'center',
 							...(!props.hasBalance ||
-							(props.hasBalance &&
-								props.walletBalance &&
-								maxSpend < immediateLocalQuantity)
+							(props.hasBalance && props.walletBalance && isGreaterThanMaxSpend)
 								? { color: '#ff4567' }
 								: {}),
 						}}
@@ -181,7 +212,7 @@ export const SwapToken = (props: {
 									text={
 										<span>
 											{maxSpend?.slice(0, 10)}… (
-											{maxSpend == immediateLocalQuantity ? (
+											{isEqualToMaxSpend ? (
 												<span
 													style={{
 														transform: 'translateY(4px)',

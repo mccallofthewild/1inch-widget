@@ -48,7 +48,7 @@ export const useSwap = (
 	};
 
 	const execute = async () => {
-		const testMode = true && process.env.NODE_ENV == 'development';
+		const testMode = false && process.env.NODE_ENV == 'development';
 
 		const signer = provider.getSigner();
 		try {
@@ -79,6 +79,9 @@ export const useSwap = (
 						],
 						delay: 5000,
 					});
+					// Give users time to read the message
+					await new Promise((r) => setTimeout(r, 2000));
+
 					if (!testMode) {
 						const tx = await approve(
 							parsedAmountFromToken,
@@ -110,6 +113,7 @@ export const useSwap = (
 			const swap = await repeatOnFail(
 				async () =>
 					await await new OneInchApi.QuoteSwapApi().swap({
+						burnChi: true,
 						fromTokenAddress: fromToken.id,
 						toTokenAddress: toToken.id,
 						amount: (parsedAmountFromToken.toString() as unknown) as number,
@@ -117,8 +121,9 @@ export const useSwap = (
 						fromAddress: web3.account,
 					}),
 				{
+					iterations: 10,
 					waitFor: 1000,
-					iterations: 5,
+					waitForMultiplier: 1.5,
 				}
 			);
 			// Add error toast here

@@ -1,7 +1,7 @@
 import { useWeb3React } from '@web3-react/core';
 import { BigNumber, ethers } from 'ethers';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { OneInchGraph } from '../generated/OneInchGraph';
 import { calc } from '../helpers/calc';
 import { useAllTokens } from '../hooks/useAllTokens';
@@ -36,7 +36,6 @@ import { StringDecoder } from 'string_decoder';
 import { Touchable } from '../components/Touchable';
 import { useNextTick } from '../hooks/useNextTick';
 import { SwapModal } from './SwapModal';
-
 rateLimitContractsAndOneInch();
 
 let hasCheckedForEthereum = false;
