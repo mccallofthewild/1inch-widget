@@ -193,16 +193,11 @@ export const WidgetBuilder = () => {
 					{widgetHtml ? (
 						<Card
 							style={{
-								cursor: 'copy',
+								cursor: 'pointer',
 							}}
 							onMouseDown={(e) => {
 								if (!widgetHtml) return;
 								clipboard.copy(widgetHtml);
-								const s = window.getSelection();
-								if (s.rangeCount > 0) s.removeAllRanges();
-								const range = document.createRange();
-								range.selectNode(e.currentTarget.querySelector('code'));
-								s.addRange(range);
 								setToast({
 									text: 'Copied HTML to clipboard',
 								});
