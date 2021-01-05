@@ -14,7 +14,7 @@ The DEX Swap Widget that <br/> Packs a Punch 👊
 
 
 # 🏊‍♀️  Product Deepdive 
-## Demo
+## Video Demo
 <img src="./public/images/demo.gif" width="400"/>
 
 ## Features:
