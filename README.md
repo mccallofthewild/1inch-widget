@@ -25,6 +25,8 @@ The DEX Swap Widget that <br/> Packs a Punch 👊
   * Trade pair inversion (ETH-DAI to DAI-ETH in one click)
   * Auto-generated token logos for non-standard tokens 
   * Illustrative UX animations 
+  * Ready-on-load thanks to preloaded SSR data
+  
 ### ⏰ Upcoming:
   * CHI gas token support
 
